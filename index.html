@@ -49,6 +49,10 @@ h1{font-size:21px;margin:0 0 4px;font-weight:600;}
 .report h2{font-size:16px;margin:18px 0 6px;font-weight:600;color:var(--accent);}
 .report h2:first-child{margin-top:0;}
 .report p{margin:6px 0;}
+.usage-guide{background:#f3efe8;border:1px dashed var(--line);border-radius:12px;padding:14px 16px;margin:12px 0 0;font-size:13.5px;color:#5a5a54;}
+.usage-guide h3{font-size:14px;margin:0 0 8px;color:var(--accent);font-weight:600;}
+.usage-guide ul{margin:0;padding-left:18px;}
+.usage-guide li{margin:4px 0;line-height:1.6;}
 .rbar{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
 .rbtn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid #2d6b50;border-radius:9px;cursor:pointer;background:#fff;color:#2d6b50;transition:.15s}
 .rbtn:hover{background:#2d6b50;color:#fff}
@@ -80,6 +84,15 @@ h1{font-size:21px;margin:0 0 4px;font-weight:600;}
   </div>
   <div class="grid" id="grid"></div>
   <div class="report" id="report"></div>
+  <div class="usage-guide" data-html2canvas-ignore="true">
+    <h3>📌 这份报告能用在哪</h3>
+    <ul>
+      <li><b>选工作</b>：看岗位/团队是否在喂你的高位价值——比如「影响力」强的人，要避开把人当工具、不把话当话的环境；</li>
+      <li><b>选伴侣 / 处关系</b>：看对方能不能接住你的核心驱动，长期关系靠的是高位价值被持续回应；</li>
+      <li><b>两难决策</b>：A、B 都想要时，问"哪个更服务我的高位价值"，往往就是不后悔那个；</li>
+      <li><b>内耗诊断</b>：累、虚、想哭，常是行动在喂低位价值、而高位价值长期没被喂到的信号。</li>
+    </ul>
+  </div>
   <button class="btn" id="retake" style="margin-top:18px;background:#fff;color:var(--accent);border:1px solid var(--accent)">重新测一次</button>
 </div>
 
@@ -205,39 +218,39 @@ const TYPE_INFO={
 // ===== 类型专属分析（洞察 + 能量建议）——确保不同类型输出不同分析 =====
 const TYPE_ANALYSIS={
   caring:{
-    insight:'你最"饿"的是被需要、被看见——但付出若总换不回回应，你会先把自己耗干。真正的连接不是把你掏空，而是你也敢接住别人的好。',
+    insight:'你总忍不住多照顾别人——帮同事顶班、替朋友操心，但帮完自己反而更空。下次付出前先看看：自己杯子里的水还剩多少？',
     tips:['给出去之前先问自己"我还有没有余量"，把"被需要"和"自我消耗"分开；','允许别人为你做点事，接住爱比给出去爱更需要练习；','当你累到想哭，往往不是事多，而是你太久没被"看见"——主动说出来，别硬扛。']
   },
   respect:{
-    insight:'你最"饿"的是被认可、有影响力——但真正的影响力不是求来的，是你把专业和边界立住后自然长出来的。越急着证明"我值得"，反而越容易被轻视。',
+    insight:'开会没人接你的话、方案被随意改掉——这些小事能让你难受一整天。把精力花在亮出真本事上，比盯着别人态度有用得多。',
     tips:['把"他是不是看不起我"的猜想，换成"我有没有把专业亮出来"的事实核对；','立边界不是攻击，平静地说"这块我更专业"本身就是影响力的起点；','当你因一句轻飘飘的话炸毛，先停三秒——那往往是旧伤口在响，不是当下的人在伤你。']
   },
   stability:{
-    insight:'你最"饿"的是稳——但稳不是什么都不变，而是"变来了我心里也有底"。把安全感全押在外部不变上，反而最不稳。',
+    insight:'计划被打乱、突然接到变更消息——这些瞬间你的焦虑比谁都大。与其等别人给你确定感，不如自己先备好 Plan B，心里有底就不慌。',
     tips:['区分"可控的稳"和"不可控的变"：精力投在前者（自己的节奏、储蓄、能力），后者学着接受；','给自己设一个"安全垫"（存款/退路/Plan B），有了它你才敢放开手去做；','焦虑往往不是真要出事，而是"信息不透明"——主动去问、去看，比独自脑补踏实得多。']
   },
   achievement:{
-    insight:'你最"饿"的是证明自己有用——但"做成事"和"证明自己"是两件事。前者喂你，后者耗你。',
+    insight:'你停不下来地想"再做到一点"——但有时是热爱在推，有时是"不优秀就不配"的旧声音在催。分清这两者，累了才敢真歇。',
     tips:['定目标时问一句"这是为了把事做好，还是为了不被看扁"，后者多半是内耗；','允许自己"做成一件小事"就算数，别总拿天花板量自己；','当你拼命到停不下来要警惕——那可能不是热爱，是"不优秀就不配"的旧声音在催你。']
   },
   freedom:{
-    insight:'你最"饿"的是不被缚——但自由不是想干啥就干啥，而是"不想干能说不"。真正的自由需要底盘，没有底盘的随性会变成漂泊。',
+    insight:'你一被管就想跑——打卡、周报、别人安排你的节奏都让你憋得慌。但"想干嘛干嘛"和"不想干能说不"是两回事，后者才需要你先攒够底气。',
     tips:['把"要自由"翻译成具体场景（谁的安排能拒、什么节奏能自定），比空喊自由有用；','自由要配自律：自己定的节奏守住了，别人才不会来管你；','当你想逃离一切，先分辨是"环境真窒息"还是"我怕被绑住"——前者该走，后者该谈。']
   },
   justice:{
-    insight:'你最"饿"的是公平对等——但世上的公平很少是"等来的"，更多是你有分量后"争来的"。较真是你的力量，也是你的消耗。',
+    insight:'双标、和稀泥、谁有关系谁占便宜——这些能让你当场炸毛。但较真是消耗品，把火力留给真正踩你底线的事，其他的放过自己也放过别人。',
     tips:['区分"原则问题"和"不舒服但可忍"，把火力留给前者，否则你会把自己累垮；','推动公平前先攒筹码——话语权往往比道理更管用；','当你为别人的不公炸毛，停一下确认"这是他们的事还是我的旧伤"——你不必替所有人讨说法。']
   },
   enjoyment:{
-    insight:'你最"饿"的是当下的爽——但快乐有两种：消耗型的（爽完更空）和滋养型的（爽完更满）。你需要的不是更多乐子，是更对的那种。',
+    insight:'无聊比加班更让你难受——总想找点乐子。但刷完两小时手机你只会更空，而投入一个爱好做完反而更满。多投后一种。',
     tips:['给快乐分类：哪些做完更累、哪些做完更轻，多投后者；','别把"无聊"当敌人，有些真正的满足藏在需要耐心的事里；','当你拼命找乐子却更空虚，那不是缺乐子，是缺意义——试着为一件比"自己爽"更大的事花点时间。']
   },
   tradition:{
-    insight:'你最"饿"的是传统的温度和归属——但传承不是照搬，是"接住好的、放下旧的"。守得太死，反而把自己困在过去。',
+    insight:'过年要回家、老朋友要常聚、老规矩让你踏实。但"传承"不是照搬——有些老规矩值得守，有些只是习惯了的旧框，分清楚才不把自己困住。',
     tips:['分清"值得守的老规矩"和"只是习惯了的旧框"，前者传承，后者可破；','归属感不必靠"和所有人一样"换，找到三五个真懂你的人，比挤进圈子更暖；','当你因"被嫌老土"难过，记住——传承者本就是少数，你的价值不在被所有人懂。']
   },
   exploration:{
-    insight:'你最"饿"的是新鲜与挑战——但"探索"和"逃离"只隔一层纸。前者是被好奇拉着走，后者是被无聊推着跑。总换赛道却不深入，新鲜感会变成空转。',
+    insight:'新餐厅、新工具、新路线你都想试——但"尝鲜"和"逃离"长得像：前者是被好奇拉着走，后者是被无聊推着跑。每试一个新东西留下一页笔记，新鲜感才能变积累。',
     tips:['给探索加一个"沉淀动作"：每试一个新东西，留下一页笔记/一个作品，新鲜感才能变成积累；','分辨"想试新的"还是"想逃旧的"——前者去试，后者先把旧的问题看清；','找一两个愿意陪你试错的伙伴，探索有人分享，能量翻倍。']
   }
 };
@@ -379,11 +392,6 @@ function buildReport(norm, careless, prevEntry, conf, fast){
   html+=buildType(norm);
   html+=`<h2>一句洞察（你是【${NICK[key].n}】）</h2><p>${ta.insight}</p>`;
   html+=`<h2>个人能量提升建议</h2><ul class="tips">${ta.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;
-  html+=`<h2>📌 这份报告能用在哪</h2><p>
-• <b>选工作</b>：看岗位/团队是否在喂你的高位价值——比如「影响力」强的人，要避开把人当工具、不把话当话的环境；<br>
-• <b>选伴侣 / 处关系</b>：看对方能不能接住你的核心驱动，长期关系靠的是高位价值被持续回应；<br>
-• <b>两难决策</b>：A、B 都想要时，问“哪个更服务我的高位价值”，往往就是不后悔那个；<br>
-• <b>内耗诊断</b>：累、虚、想哭，常是行动在喂低位价值、而高位价值长期没被喂到的信号。</p>`;
   html+=`<h2>⚠️ 仅供参考</h2><p>这是一份基于你当下自评的<b>趣味画像</b>，不是标准心理测评，也不能替代专业心理咨询。价值倾向没有优劣，只代表不同驱动力；权重也会随人生阶段漂移——过阵子再来测，可能又是另一番风景。真正拿主意的，永远是你自己的感受。<br><b>免责声明：</b>本测评用于帮助个人理解自身价值倾向，不用于判断个人能力、人格优劣，也不得直接作为招聘录用依据。</p>`;
   html+=`<h2>📊 这份测试的信效度</h2><p>
 这是一份<b>趣味向三选一快照</b>，不是标准化心理量表，<b>效度有上限</b>：每题三选一会压缩「三个都像我」的复杂情况，但对中等强度价值已有一定区分力。<br>
@@ -413,21 +421,33 @@ function saveImage(evt){
   if(typeof html2canvas==='undefined'){ alert('图片导出组件未加载，请检查网络后刷新重试。'); return; }
   var btn=evt&&evt.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
   html2canvas(target,{backgroundColor:'#faf9f7',scale:2,useCORS:true,scrollY:0,windowWidth:document.documentElement.clientWidth}).then(function(canvas){
-    var a=document.createElement('a');
-    a.href=canvas.toDataURL('image/png');
-    a.download='价值观报告-'+Date.now()+'.png';
-    a.click();
+    var dataUrl=canvas.toDataURL('image/png');
+    var isMobile=/MicroMessenger|Android|iPhone|iPod|iPad/i.test(navigator.userAgent);
+    if(isMobile){
+      showImageOverlay(dataUrl);
+    }else{
+      var a=document.createElement('a');
+      a.href=dataUrl;
+      a.download='价值观报告-'+Date.now()+'.png';
+      a.click();
+    }
     if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
   }).catch(function(){
     alert('图片生成失败，可尝试用手机截屏保存。');
     if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
   });
 }
+function showImageOverlay(dataUrl){
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML='<div style="color:#fff;font-size:15px;margin-bottom:14px;text-align:center;line-height:1.6">👇 长按下方图片<br>选择"保存到相册"</div>'+
+    '<img src="'+dataUrl+'" style="max-width:100%;max-height:72vh;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.4)"/>'+
+    '<button style="margin-top:16px;padding:11px 28px;border:none;border-radius:10px;background:#e07a3f;color:#fff;font-size:15px;cursor:pointer;font-weight:600" onclick="this.parentElement.remove()">关闭</button>';
+  document.body.appendChild(overlay);
+}
 
 // ===== 主流程 =====
-renderQuiz();
-document.getElementById('go').onclick=()=>{
-  if(answers.includes(null)){alert('还有题没选哦～');return;}
+function showResult(prevEntry, isRestore){
   const norm=computeQuiz();
   const careless = answers.every(a=>a==='a') || answers.every(a=>a==='b') || answers.every(a=>a==='c');
   // 置信度：top1 价值被选次数越集中，类型判定越可信
@@ -437,7 +457,7 @@ document.getElementById('go').onclick=()=>{
   const conf = maxRaw>=5?'high':maxRaw>=4?'mid':'low';
   const {t1,t2}=persona(norm);
   const ty=typeOf(norm);
-  submitResult({type:'fun', t:Date.now(), norm, key:ty.key, typeName:t1.n, clanName:ty.clan.n, careless});
+  if(!isRestore) submitResult({type:'fun', t:Date.now(), norm, key:ty.key, typeName:t1.n, clanName:ty.clan.n, careless});
   document.getElementById('persona').innerHTML=
     `<div class="emoji">${t1.e}</div><div class="pname">${t1.n}</div>
      <div class="pdesc">核心价值原型 · 你最在意 ${t1.d}</div>
@@ -447,15 +467,38 @@ document.getElementById('go').onclick=()=>{
   const txt=`我是【${t1.n}】${t1.e} · ${ty.clan.n}（${ty.info.one}）。\n社交超能力：${ty.info.super}\n雷区：${ty.info.mine}\n最合拍：${ty.info.match.join('、')}\n你测出来是啥型？ #价值原型 #${t1.n}型 ${ty.clan.tag} 👉`;
   document.getElementById('sharetxt').textContent=txt;
   renderGrid(norm);
-  let hist=[]; try{hist=JSON.parse(localStorage.getItem('vc_history')||'[]');}catch(e){}
-  const prevEntry = hist.length? hist[hist.length-1] : null;
   document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观趣味版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage(event)">📸 保存为图片</button></div>'+buildReport(norm, careless, prevEntry, conf);
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('result').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
-  hist.push({norm, t:Date.now()});
+}
+
+renderQuiz();
+document.getElementById('go').onclick=()=>{
+  if(answers.includes(null)){alert('还有题没选哦～');return;}
+  let hist=[]; try{hist=JSON.parse(localStorage.getItem('vc_history')||'[]');}catch(e){}
+  const prevEntry = hist.length? hist[hist.length-1] : null;
+  showResult(prevEntry, false);
+  // 保存结果 + answers（用于自动恢复，解决切浏览器丢状态问题）
+  const norm=computeQuiz();
+  hist.push({norm, answers:[...answers], t:Date.now()});
   try{localStorage.setItem('vc_history', JSON.stringify(hist.slice(-5)));}catch(e){}
 };
+
+// 自动恢复：切到外部浏览器时不丢结果（2小时内的记录自动恢复）
+(function autoRestore(){
+  try{
+    var hist=JSON.parse(localStorage.getItem('vc_history')||'[]');
+    if(!hist.length) return;
+    var last=hist[hist.length-1];
+    var ageMin=(Date.now()-last.t)/60000;
+    if(ageMin>120) return; // 超过2小时不自动恢复
+    if(!last.answers || last.answers.length!==QUIZ.length) return;
+    for(var i=0;i<last.answers.length;i++) answers[i]=last.answers[i];
+    var prevEntry = hist.length>=2 ? hist[hist.length-2] : null;
+    showResult(prevEntry, true);
+  }catch(e){}
+})();
 document.getElementById('retake').onclick=()=>{
   document.getElementById('result').classList.add('hidden');
   document.getElementById('quizCard').classList.remove('hidden');

@@ -466,6 +466,55 @@ function renderGrid(norm){
   return h;
 }
 
+/* ============ 生活 vs 工作差异对比 ============ */
+function lifeWorkCompare(workNorm){
+  var funHist=[];
+  try{ funHist=JSON.parse(localStorage.getItem('vc_history')||'[]'); }catch(e){}
+  if(!funHist.length){
+    return '<h2>🔄 生活 vs 工作</h2>'+
+      '<p style="color:var(--sub);font-size:13px">想看看"生活中的你"和"工作中的你"有什么不同？'+
+      '先去做一次<a href="index.html" style="color:var(--accent);font-weight:600">趣味版</a>，'+
+      '回来这里就能看到跨场景对比分析。</p>';
+  }
+  var funNorm=funHist[funHist.length-1].norm;
+  var funTop=Object.entries(funNorm).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];});
+  var workTop=Object.entries(workNorm).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];});
+  var roseAtWork=workTop.filter(function(v){return funTop.indexOf(v)===-1;});
+  var droppedAtWork=funTop.filter(function(v){return workTop.indexOf(v)===-1;});
+  var consistent=workTop.filter(function(v){return funTop.indexOf(v)!==-1;});
+
+  var h='<h2>🔄 生活 vs 工作：你的类型差异</h2>';
+  h+='<p style="color:var(--sub);font-size:13px">对比你趣味版（生活场景）和企业版（职场场景）的结果，看看"生活中的你"和"工作中的你"有什么不同。</p>';
+  h+='<div style="display:flex;gap:12px;margin:10px 0">';
+  h+='<div style="flex:1;background:var(--soft);border-radius:10px;padding:12px"><b>🏠 生活中的你</b><br><span style="font-size:13px">核心驱动：'+funTop.map(function(v){return VALUE_META[v].cn;}).join('、')+'</span></div>';
+  h+='<div style="flex:1;background:#fdf1e9;border-radius:10px;padding:12px"><b>💼 工作中的你</b><br><span style="font-size:13px">核心驱动：'+workTop.map(function(v){return VALUE_META[v].cn;}).join('、')+'</span></div>';
+  h+='</div>';
+
+  if(consistent.length){
+    h+='<p><b>跨场景稳定的核心：</b>'+consistent.map(function(v){return VALUE_META[v].cn;}).join('、')+
+      ' —— 无论生活还是工作，这几个都是你的底层驱动，最不容易被环境改变。</p>';
+  }
+  if(roseAtWork.length){
+    h+='<p><b>工作时浮上来的：</b>'+roseAtWork.map(function(v){return VALUE_META[v].cn;}).join('、')+
+      ' —— 在职场情境下被激活，可能是因为岗位需要或组织文化催化。';
+    roseAtWork.forEach(function(v){ h+=VALUE_INTERP[v].hi; });
+    h+='</p>';
+  }
+  if(droppedAtWork.length){
+    h+='<p><b>工作时退后的：</b>'+droppedAtWork.map(function(v){return VALUE_META[v].cn;}).join('、')+
+      ' —— 在生活里更重要，进入工作角色后被暂时压低。';
+    droppedAtWork.forEach(function(v){ h+=VALUE_INTERP[v].lo; });
+    h+='</p>';
+  }
+  if(!roseAtWork.length && !droppedAtWork.length){
+    h+='<p>你的核心驱动在生活和工作场景下高度一致——你的价值观比较"表里如一"，不太会因为换上工装就变成另一个人。</p>';
+  }else{
+    h+='<p style="font-size:13px;color:var(--sub)">差异不是矛盾——每个人在不同情境下调动不同价值是正常的。'+
+      '关键看：那些"退后"的价值，是被你主动管理了，还是被环境压住了？如果是后者，长期可能产生内耗。</p>';
+  }
+  return h;
+}
+
 /* ============ 报告组装 ============ */
 function buildReport(norm,flags,prev){
   const vals=Object.keys(VALUE_META);
@@ -541,8 +590,8 @@ function buildReport(norm,flags,prev){
       <li><b>边界：</b>本工具测「价值观动机」，不测能力、不测性格、不测绩效；仅作人才理解与发展参考，不得单凭此做录用/淘汰/晋升决定，须遵守就业合规与反歧视要求。</li>
     </ul>`;
 
-  h+=`<h2>🔀 和「趣味版」结果对不上？</h2>
-    <p>这是正常的。本企业版问的是<b>职场情境、深思熟虑下的你</b>——5 级量表、逐题打分，测的是"进入工作角色后的我"；而趣味版问的是<b>生活场景、直觉反应下的你</b>——三选一、快判断，测的是"卸下角色、自然状态的我"。两个"我"本就可能不同：工作里你把影响力和公正排在前面，生活里你可能更被成就和自由驱动。<b>差异不是矛盾，而是你不同面向的真实写照</b>。两版合在一起看，才是一个更完整的你。</p>`;
+  // 生活 vs 工作差异对比（读取趣味版结果）
+  h+=lifeWorkCompare(norm);
 
   h+=`<h2>⚠️ 免责声明</h2>
     <p>本测评用于帮助个人和组织理解价值倾向，不用于判断个人能力、人格优劣，也不得直接作为招聘录用、淘汰或晋升的依据。价值倾向没有优劣，只代表不同驱动力。结果仅反映<b>当下自评</b>，会随人生阶段和情境漂移。</p>`;
@@ -596,15 +645,29 @@ function saveImage(evt){
   if(typeof html2canvas==='undefined'){ alert('图片导出组件未加载，请检查网络后刷新重试。'); return; }
   var btn=evt&&evt.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
   html2canvas(target,{backgroundColor:'#f5f7fa',scale:2,useCORS:true,scrollY:0,windowWidth:document.documentElement.clientWidth}).then(function(canvas){
-    var a=document.createElement('a');
-    a.href=canvas.toDataURL('image/png');
-    a.download='价值观企业版报告-'+Date.now()+'.png';
-    a.click();
+    var dataUrl=canvas.toDataURL('image/png');
+    var isMobile=/MicroMessenger|Android|iPhone|iPod|iPad/i.test(navigator.userAgent);
+    if(isMobile){
+      showImageOverlay(dataUrl);
+    }else{
+      var a=document.createElement('a');
+      a.href=dataUrl;
+      a.download='价值观企业版报告-'+Date.now()+'.png';
+      a.click();
+    }
     if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
   }).catch(function(){
     alert('图片生成失败，可尝试用手机截屏保存。');
     if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
   });
+}
+function showImageOverlay(dataUrl){
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML='<div style="color:#fff;font-size:15px;margin-bottom:14px;text-align:center;line-height:1.6">👇 长按下方图片<br>选择"保存到相册"</div>'+
+    '<img src="'+dataUrl+'" style="max-width:100%;max-height:72vh;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.4)"/>'+
+    '<button style="margin-top:16px;padding:11px 28px;border:none;border-radius:10px;background:#2f6df0;color:#fff;font-size:15px;cursor:pointer;font-weight:600" onclick="this.parentElement.remove()">关闭</button>';
+  document.body.appendChild(overlay);
 }
 
 renderQuiz();
