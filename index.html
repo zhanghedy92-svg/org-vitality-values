@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>价值观人格测试 · 你是哪一种？</title>
+<title>价值观测评 · 你的价值原型是哪一种？</title>
 <style>
 :root{
   --bg:#faf9f7; --card:#fff; --ink:#2c2c2a; --muted:#7a7a73; --line:#e6e3dd; --accent:#e07a3f;
@@ -66,8 +66,8 @@ h1{font-size:21px;margin:0 0 4px;font-weight:600;}
 <body>
 <div id="quizCard">
 <a class="labbanner" href="intro.html">🌿 <b>组织生命力实验室</b> · 价值观是你的能量底座，测清它就是给个人生命力做体检 →</a>
-<h1>价值观人格测试</h1>
-<p class="sub">18 道小题，测出你真正在意什么，领一个专属于你的价值观人格 👀</p>
+<h1>价值观测评 · 趣味版</h1>
+<p class="sub">18 道小题，测出你真正在意什么，领一个专属于你的价值原型 👀<br><span style="font-size:11.5px">价值倾向没有优劣，只代表不同的驱动力。</span></p>
 <div id="quiz"></div>
 <button class="btn" id="go" disabled>测一测我的价值观</button>
 </div>
@@ -89,45 +89,61 @@ h1{font-size:21px;margin:0 0 4px;font-weight:600;}
   <span style="font-size:10px;color:var(--muted)">© 组织生命力实验室 · 基于 Schwartz 普世价值观理论</span>
 </div>
 
+<script src="html2canvas.min.js"></script>
 <script>
 // ===== 九大价值 =====
 const VALUES = {
-  achievement:{nm:'成就'}, conservation:{nm:'守成'}, caring:{nm:'关怀'},
-  freedom:{nm:'自由'}, respect:{nm:'尊重'}, tradition:{nm:'传统'},
-  enjoyment:{nm:'享乐'}, stability:{nm:'稳定'}, justice:{nm:'平等公正'}
+  achievement:{nm:'成就'}, exploration:{nm:'探索'}, caring:{nm:'关怀'},
+  freedom:{nm:'自由'}, respect:{nm:'影响力'}, tradition:{nm:'传统'},
+  enjoyment:{nm:'享乐'}, stability:{nm:'稳定'}, justice:{nm:'公平公正'}
 };
+// 象限归属（用于驱动力组合解读）
+const QUAD={achievement:'drive',respect:'drive',freedom:'open',exploration:'open',enjoyment:'open',stability:'ground',tradition:'ground',caring:'care',justice:'care'};
+const COMBO={
+  'care|drive':{n:'使命驱动型',d:'希望通过做成事来帮助他人——你要的不只是赢，而是"有意义的赢"。'},
+  'drive|open':{n:'探索突破型',d:'追求成长、自主与新鲜感，敢闯敢试，最怕原地踏步。'},
+  'drive|ground':{n:'稳进经营型',d:'目标感强但走得稳，擅长把事情做成并长期经营下去。'},
+  'drive|drive':{n:'进取登峰型',d:'强目标、强认可驱动，冲劲十足，是天然的攻坚者。'},
+  'care|open':{n:'人本创新型',d:'想用新方法让人过得更好，温暖而灵活。'},
+  'ground|open':{n:'张弛平衡型',d:'既要新鲜也要底盘——变化可以，但节奏得自己说了算。'},
+  'open|open':{n:'自由探索型',d:'自主与新鲜感是你的第一生产力，被框住就会枯萎。'},
+  'care|ground':{n:'守护凝聚型',d:'建秩序、护人心，是团队和关系里的粘合剂。'},
+  'ground|ground':{n:'秩序建设型',d:'擅长建立规则、营造确定性，是长期主义者。'},
+  'care|care':{n:'利他共益型',d:'他人福祉与公平是你的核心罗盘。'}
+};
+function comboOf(k1,k2){ const key=[QUAD[k1],QUAD[k2]].sort().join('|'); return COMBO[key]; }
 // ===== 情景三选一问卷（18题，每价值精确6次）=====
 const QUIZ = [
   {q:'周末你更可能怎么过？', a:{t:'约上好朋友深度聊天，被需要的感觉很舒服',v:'caring'}, b:{t:'一个人放空，谁也别打扰我',v:'freedom'}, c:{t:'按计划把早安排好的事做完',v:'stability'}},
   {q:'选工作你最看重什么？', a:{t:'稳定有保障，心里踏实',v:'stability'}, b:{t:'能证明自己厉害、有成长空间',v:'achievement'}, c:{t:'氛围轻松、同事好玩',v:'enjoyment'}},
   {q:'朋友遇到困难找你，第一反应？', a:{t:'静静陪着，让他感觉被接住',v:'caring'}, b:{t:'帮他分析对错、理清思路',v:'justice'}, c:{t:'拉他出去吃喝玩乐散心',v:'enjoyment'}},
-  {q:'你心里的"理想家"是？', a:{t:'按长辈传统的温馨样子',v:'tradition'}, b:{t:'怎么舒服怎么来，规矩不重要',v:'freedom'}, c:{t:'每个人都被尊重、有商有量',v:'respect'}},
+  {q:'你心里的"理想家"是？', a:{t:'按长辈传统的温馨样子',v:'tradition'}, b:{t:'怎么舒服怎么来，规矩不重要',v:'freedom'}, c:{t:'我的意见有分量、说话算数',v:'respect'}},
   {q:'你更怕哪种感觉？', a:{t:'不被当回事、被轻视',v:'respect'}, b:{t:'生活失控、心里没底',v:'stability'}, c:{t:'努力了却不被认可',v:'achievement'}},
-  {q:'攒到一笔钱你更想？', a:{t:'去玩、享受当下',v:'enjoyment'}, b:{t:'存起来，守住现有的安稳',v:'conservation'}, c:{t:'投资自己，变得更强',v:'achievement'}},
-  {q:'吵架和好后你更在意？', a:{t:'对方有没有尊重我的感受',v:'respect'}, b:{t:'关系能不能和好如初',v:'caring'}, c:{t:'谁对谁错说清楚',v:'justice'}},
+  {q:'攒到一笔钱你更想？', a:{t:'吃顿好的、犒劳自己，享受当下',v:'enjoyment'}, b:{t:'解锁一个一直想试的新体验',v:'exploration'}, c:{t:'投资自己，变得更强',v:'achievement'}},
+  {q:'吵架和好后你更在意？', a:{t:'对方有没有把我的话当回事',v:'respect'}, b:{t:'关系能不能和好如初',v:'caring'}, c:{t:'谁对谁错说清楚',v:'justice'}},
   {q:'哪种时刻让你最有满足感？', a:{t:'啃下一件难事后的成就感',v:'achievement'}, b:{t:'轻松有趣的小确幸',v:'enjoyment'}, c:{t:'帮到别人、被人需要',v:'caring'}},
-  {q:'看到不公平的事你更可能？', a:{t:'站出来讨个说法',v:'justice'}, b:{t:'先保住自己、别惹事',v:'conservation'}, c:{t:'悄悄帮弱势的那一方',v:'caring'}},
+  {q:'看到不公平的事你更可能？', a:{t:'站出来讨个说法',v:'justice'}, b:{t:'琢磨一个新办法去改变现状',v:'exploration'}, c:{t:'悄悄帮弱势的那一方',v:'caring'}},
   {q:'过节你更倾向？', a:{t:'按老传统一家人聚',v:'tradition'}, b:{t:'自由安排、不凑热闹',v:'freedom'}, c:{t:'在家安安稳稳就好',v:'stability'}},
   {q:'你更受不了哪种朋友？', a:{t:'当面不尊重我、把我当空气',v:'respect'}, b:{t:'太无趣、干啥都没劲',v:'enjoyment'}, c:{t:'不守信用、说一套做一套',v:'justice'}},
-  {q:'形容你想要的关系，更认同哪句？', a:{t:'被平等尊重、有商有量',v:'respect'}, b:{t:'给我空间、别来管我',v:'freedom'}, c:{t:'一起成长、共同进步',v:'achievement'}},
-  {q:'在团队里你觉得最重要的是？', a:{t:'规则对所有人都公平',v:'justice'}, b:{t:'尊重老办法和经验',v:'tradition'}, c:{t:'不冒险、稳扎稳打',v:'conservation'}},
-  {q:'面对新机会你先想什么？', a:{t:'会不会太冒险',v:'conservation'}, b:{t:'过来人怎么做的、有没有先例',v:'tradition'}, c:{t:'会不会失去现在的自由',v:'freedom'}},
+  {q:'形容你想要的关系，更认同哪句？', a:{t:'我的意见被重视、说话有分量',v:'respect'}, b:{t:'给我空间、别来管我',v:'freedom'}, c:{t:'一起成长、共同进步',v:'achievement'}},
+  {q:'在团队里你觉得最重要的是？', a:{t:'规则对所有人都公平',v:'justice'}, b:{t:'尊重老办法和经验',v:'tradition'}, c:{t:'不断尝试新方法、保持活力',v:'exploration'}},
+  {q:'面对新机会你先想什么？', a:{t:'好新鲜，先试了再说',v:'exploration'}, b:{t:'过来人怎么做的、有没有先例',v:'tradition'}, c:{t:'会不会失去现在的自由',v:'freedom'}},
   {q:'你更认同哪句话？', a:{t:'家人和传统最重要',v:'tradition'}, b:{t:'自己开心最重要',v:'enjoyment'}, c:{t:'安稳是幸福的基础',v:'stability'}},
-  {q:'做重要决定时你更听谁的？', a:{t:'自己的直觉和判断',v:'freedom'}, b:{t:'过来人的经验和老办法',v:'tradition'}, c:{t:'什么选择更安全、更划算',v:'conservation'}},
-  {q:'你觉得"成功"是？', a:{t:'被人认可、被尊重',v:'respect'}, b:{t:'内心安定、不焦虑',v:'stability'}, c:{t:'让身边人都过得好',v:'caring'}},
-  {q:'什么最能让你有动力？', a:{t:'赢、做到最好',v:'achievement'}, b:{t:'保住已有、不丢掉',v:'conservation'}, c:{t:'维护公平和正义',v:'justice'}}
+  {q:'做重要决定时你更听谁的？', a:{t:'自己的直觉和判断',v:'freedom'}, b:{t:'过来人的经验和老办法',v:'tradition'}, c:{t:'哪个更有意思、更能长见识',v:'exploration'}},
+  {q:'你觉得"成功"是？', a:{t:'被认可、有影响力和地位',v:'respect'}, b:{t:'内心安定、不焦虑',v:'stability'}, c:{t:'让身边人都过得好',v:'caring'}},
+  {q:'什么最能让你有动力？', a:{t:'赢、做到最好',v:'achievement'}, b:{t:'尝试没做过的新挑战',v:'exploration'}, c:{t:'维护公平和正义',v:'justice'}}
 ];
 // ===== 人格昵称 =====
 const NICK = {
   caring:{n:'温暖守护者', e:'🤗', d:'被看见、被需要'},
-  respect:{n:'尊严骑士', e:'🛡️', d:'被当回事'},
+  respect:{n:'闪耀影响者', e:'🌟', d:'被认可、有分量'},
   stability:{n:'安心港湾', e:'⚓', d:'稳稳的踏实'},
   achievement:{n:'登顶玩家', e:'🏔️', d:'证明自己有用'},
   freedom:{n:'野生探险家', e:'🦋', d:'自由不被束缚'},
   justice:{n:'正义裁断者', e:'⚖️', d:'公平对等'},
   enjoyment:{n:'快乐收藏家', e:'🎉', d:'当下的爽'},
   tradition:{n:'根脉传承者', e:'🌳', d:'传统的温度'},
-  conservation:{n:'稳守园丁', e:'🪴', d:'守住现有安稳'}
+  exploration:{n:'破浪冒险家', e:'🚀', d:'新鲜与挑战'}
 };
 // ===== 族群（用于谈资与传播）=====
 const CLANS={
@@ -137,23 +153,23 @@ const CLANS={
 };
 const CLAN_OF={caring:'inward',respect:'inward',justice:'inward',tradition:'inward',
   stability:'anchor',
-  achievement:'outward',freedom:'outward',enjoyment:'outward',conservation:'outward'};
+  achievement:'outward',freedom:'outward',enjoyment:'outward',exploration:'outward'};
 // ===== 类型原型（社交谈资版）=====
 const TYPE_INFO={
   caring:{clan:'inward',one:'把人放在事前面',
     super:'你能让身边人感到「被接住、被需要」，是天生的情绪依靠。',
     mine:'被敷衍、被当空气、付出不被看见。',
-    match:['尊严骑士🛡️','正义裁断者⚖️'],
+    match:['闪耀影响者🌟','正义裁断者⚖️'],
     clash:'和【登顶玩家🏔️】互补——你给温度、他给结果，但别被他的冲劲忽略感受。'},
-  respect:{clan:'inward',one:'被看见才安心',
-    super:'你对「被当回事」极其敏感，也最懂得尊重别人。',
-    mine:'被轻视、被当工具、话不被认真听。',
+  respect:{clan:'inward',one:'被认可才带劲',
+    super:'你天然渴望影响力和认可，也最懂得给别人"被当回事"的感觉。',
+    mine:'被轻视、被当工具、意见不被采纳。',
     match:['温暖守护者🤗','安心港湾⚓'],
-    clash:'和【野生探险家🦋】互补——你给尊重、他给自由，但别被他的随性激怒。'},
+    clash:'和【野生探险家🦋】互补——你给认可、他给自由，但别被他的随性激怒。'},
   stability:{clan:'anchor',one:'稳稳的才踏实',
     super:'你是关系里的定海神针，越动荡大家越想靠近你。',
     mine:'突然的变动、失控、心里没底。',
-    match:['温暖守护者🤗','尊严骑士🛡️'],
+    match:['温暖守护者🤗','闪耀影响者🌟'],
     clash:'和【野生探险家🦋】互补——你稳他野，但别被他的变来变去搞焦虑。'},
   achievement:{clan:'outward',one:'证明自己有用',
     super:'你拿下难事后的成就感，会带动整队往前冲。',
@@ -163,12 +179,12 @@ const TYPE_INFO={
   freedom:{clan:'outward',one:'自由不被缚',
     super:'你不被束缚的样子，本身就是别人的灵感来源。',
     mine:'被 micromanage、被安排、被管着。',
-    match:['快乐收藏家🎉','稳守园丁🪴'],
-    clash:'和【尊严骑士🛡️】互补——你给空间、他给尊重，但别用随性伤到他的较真。'},
+    match:['快乐收藏家🎉','破浪冒险家🚀'],
+    clash:'和【闪耀影响者🌟】互补——你给空间、他给认可，但别用随性伤到他的在意。'},
   justice:{clan:'inward',one:'公平对等才舒服',
     super:'你见不得不公，是团队里的「公平感」担当。',
     mine:'被欺负不敢言、和稀泥、双标。',
-    match:['温暖守护者🤗','尊严骑士🛡️'],
+    match:['温暖守护者🤗','闪耀影响者🌟'],
     clash:'和【登顶玩家🏔️】互补——你守公平、他冲业绩，但别因较真拖慢节奏。'},
   enjoyment:{clan:'outward',one:'当下就要爽',
     super:'你能把平淡日子过出小确幸，是气氛担当。',
@@ -180,11 +196,11 @@ const TYPE_INFO={
     mine:'被嫌老土、传统被随意打破、不被认同。',
     match:['温暖守护者🤗','安心港湾⚓'],
     clash:'和【野生探险家🦋】互补——你守他破，但别被他的破规矩气到。'},
-  conservation:{clan:'outward',one:'守住现有安稳',
-    super:'你擅长守住现有安稳，是风险的天然刹车。',
-    mine:'无谓折腾、冒不必要的险、被推着变。',
-    match:['安心港湾⚓','野生探险家🦋'],
-    clash:'和【正义裁断者⚖️】互补——你守他攻，但别被他的冲劲带偏节奏。'}
+  exploration:{clan:'outward',one:'新鲜感是刚需',
+    super:'你自带"尝鲜雷达"，总能第一个发现新玩法，是团队的破局者。',
+    mine:'一成不变、重复劳动、被按在旧流程里。',
+    match:['野生探险家🦋','登顶玩家🏔️'],
+    clash:'和【安心港湾⚓】互补——你破他守，但别被他的谨慎泼了热情。'}
 };
 // ===== 类型专属分析（洞察 + 能量建议）——确保不同类型输出不同分析 =====
 const TYPE_ANALYSIS={
@@ -193,8 +209,8 @@ const TYPE_ANALYSIS={
     tips:['给出去之前先问自己"我还有没有余量"，把"被需要"和"自我消耗"分开；','允许别人为你做点事，接住爱比给出去爱更需要练习；','当你累到想哭，往往不是事多，而是你太久没被"看见"——主动说出来，别硬扛。']
   },
   respect:{
-    insight:'你最"饿"的是被当回事——但真正的尊重不是求来的，是你把专业和边界立住后自然长出来的。越急着证明"我值得"，反而越容易被轻视。',
-    tips:['把"他是不是看不起我"的猜想，换成"我有没有把专业亮出来"的事实核对；','立边界不是攻击，平静地说"这块我更专业"本身就是最大的尊重；','当你因一句轻飘飘的话炸毛，先停三秒——那往往是旧伤口在响，不是当下的人在伤你。']
+    insight:'你最"饿"的是被认可、有影响力——但真正的影响力不是求来的，是你把专业和边界立住后自然长出来的。越急着证明"我值得"，反而越容易被轻视。',
+    tips:['把"他是不是看不起我"的猜想，换成"我有没有把专业亮出来"的事实核对；','立边界不是攻击，平静地说"这块我更专业"本身就是影响力的起点；','当你因一句轻飘飘的话炸毛，先停三秒——那往往是旧伤口在响，不是当下的人在伤你。']
   },
   stability:{
     insight:'你最"饿"的是稳——但稳不是什么都不变，而是"变来了我心里也有底"。把安全感全押在外部不变上，反而最不稳。',
@@ -220,9 +236,9 @@ const TYPE_ANALYSIS={
     insight:'你最"饿"的是传统的温度和归属——但传承不是照搬，是"接住好的、放下旧的"。守得太死，反而把自己困在过去。',
     tips:['分清"值得守的老规矩"和"只是习惯了的旧框"，前者传承，后者可破；','归属感不必靠"和所有人一样"换，找到三五个真懂你的人，比挤进圈子更暖；','当你因"被嫌老土"难过，记住——传承者本就是少数，你的价值不在被所有人懂。']
   },
-  conservation:{
-    insight:'你最"饿"的是守住现有安稳——但"守"和"怕变"只隔一层纸。前者是主动选择，后者是被恐惧推着走。',
-    tips:['给"稳"设上限：哪些是必须守的底线、哪些是可以拿来试新的小块，划清楚；','变之前先备份（旧流程/旧资源留好），有了退路你才敢往前迈一步；','当你本能想拒绝一切新东西，问自己"我怕的到底是变，还是变完我接不住"——后者可以准备，前者只是惯性。']
+  exploration:{
+    insight:'你最"饿"的是新鲜与挑战——但"探索"和"逃离"只隔一层纸。前者是被好奇拉着走，后者是被无聊推着跑。总换赛道却不深入，新鲜感会变成空转。',
+    tips:['给探索加一个"沉淀动作"：每试一个新东西，留下一页笔记/一个作品，新鲜感才能变成积累；','分辨"想试新的"还是"想逃旧的"——前者去试，后者先把旧的问题看清；','找一两个愿意陪你试错的伙伴，探索有人分享，能量翻倍。']
   }
 };
 function typeOf(norm){
@@ -276,7 +292,7 @@ function persona(norm){
 function buildType(norm){
   const {key,info,clan}=typeOf(norm);
   const nick=NICK[key];
-  let h='<h2>🏷️ 你的价值观类型（社交谈资版）</h2>';
+  let h='<h2>🏷️ 你的价值原型（社交谈资版）</h2>';
   h+=`<p><span class="tag" style="background:#b8531d;color:#fff">${nick.n}${nick.e} · ${clan.n}</span> <span class="tag">${info.one}</span></p>`;
   h+=`<ul class="tips">
     <li><b>社交超能力：</b>${info.super}</li>
@@ -299,7 +315,7 @@ function typeOverview(){
 }
 // ===== 九宫格 =====
 function renderGrid(norm){
-  const order=['achievement','conservation','caring','freedom','respect','tradition','enjoyment','stability','justice'];
+  const order=['achievement','exploration','caring','freedom','respect','tradition','enjoyment','stability','justice'];
   document.getElementById('grid').innerHTML = order.map(k=>{
     const v=norm[k];
     const light=94-(v-1)*5, sat=15+(v-1)*8;
@@ -308,7 +324,7 @@ function renderGrid(norm){
   }).join('');
 }
 // ===== 诊断报告 =====
-function buildReport(norm, careless, prevEntry, conf){
+function buildReport(norm, careless, prevEntry, conf, fast){
   const entries=Object.entries(norm).sort((a,b)=>b[1]-a[1]);
   const top=entries.slice(0,3), low=entries.slice(-2);
   const topNames=top.map(e=>VALUES[e[0]].nm);
@@ -318,10 +334,13 @@ function buildReport(norm, careless, prevEntry, conf){
   if(careless){
     html+=`<p style="background:rgba(224,160,0,.16);border-left:3px solid #e0a000;padding:8px 10px;border-radius:6px">⚠️ 检测到你一口气全选了同一个选项，可能没细想——这次结果参考价值偏低，建议静下心重测一次。</p>`;
   }
+  if(fast){
+    html+=`<p style="background:rgba(224,160,0,.16);border-left:3px solid #e0a000;padding:8px 10px;border-radius:6px">⚠️ 你的作答速度偏快（不足 1 分半），结果可能受随手点选影响，建议放慢重测一次更准。</p>`;
+  }
   // 置信度
   const confMap={
     high:{label:'🟢 鲜明',text:'你的价值取向比较鲜明——核心驱动明显领先，类型判定可信度较高。'},
-    mid:{label:'🟡 有倾向',text:'你有明显倾向，但top2、top3也在咬着——类型大方向靠谱，但别把副人格当配角。'},
+    mid:{label:'🟡 有倾向',text:'你有明显倾向，但top2、top3也在咬着——类型大方向靠谱，但别把辅助原型当配角。'},
     low:{label:'🔵 较均衡',text:'你的价值观比较均衡，没有单一价值压倒性地领先——这意味着你的动力来源多元，不要被一个类型标签框住。'}
   };
   const cf=confMap[conf]||confMap.mid;
@@ -330,21 +349,31 @@ function buildReport(norm, careless, prevEntry, conf){
   html+=`<p>你心里分量最重的，是 <b>${topNames.join('、')}</b>。你的动力和大多数选择，都在喂这几格。</p>`;
   html+=`<h2>相对靠后的格</h2><p>`+low.map(e=>`<span class="tag">${VALUES[e[0]].nm} ${e[1]}</span>`).join('')+`</p>`;
   html+=`<h2>核心模式</h2><p>你的核心由 <b>${NICK[key].n}${NICK[key].e}</b> 驱动，<b>${top2.n}${top2.e}</b> 是你的第二引擎——当核心需求被满足，第二引擎才会浮上来影响你的选择。这不是标签，是你价值权重的独特配比。</p>`;
+  // 驱动力组合解读
+  const combo=comboOf(entries[0][0], entries[1][0]);
+  const aux=entries.slice(2,4).map(e=>VALUES[e[0]].nm);
+  if(combo){
+    html+=`<h2>🧩 驱动力组合</h2><p>
+    <b>核心驱动力</b>：${VALUES[entries[0][0]].nm} + ${VALUES[entries[1][0]].nm} → <span class="tag" style="background:#b8531d;color:#fff">${combo.n}</span><br>
+    ${combo.d}<br>
+    <b>辅助驱动力</b>：${aux.join('、')}——当核心驱动被满足或受阻时，它们会补位影响你的选择。<br>
+    <b>决策模式</b>：两难时，你通常会先满足「${VALUES[entries[0][0]].nm}」，再兼顾「${VALUES[entries[1][0]].nm}」——如果一个选择两者都喂不到，你大概率会拖延或反悔。</p>`;
+  }
   html+=buildType(norm);
   html+=`<h2>一句洞察（你是【${NICK[key].n}】）</h2><p>${ta.insight}</p>`;
   html+=`<h2>个人能量提升建议</h2><ul class="tips">${ta.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;
   html+=`<h2>📌 这份报告能用在哪</h2><p>
-• <b>选工作</b>：看岗位/团队是否在喂你的高位价值——比如「尊重」强的人，要避开把人当工具、不把话当话的环境；<br>
+• <b>选工作</b>：看岗位/团队是否在喂你的高位价值——比如「影响力」强的人，要避开把人当工具、不把话当话的环境；<br>
 • <b>选伴侣 / 处关系</b>：看对方能不能接住你的核心驱动，长期关系靠的是高位价值被持续回应；<br>
 • <b>两难决策</b>：A、B 都想要时，问“哪个更服务我的高位价值”，往往就是不后悔那个；<br>
 • <b>内耗诊断</b>：累、虚、想哭，常是行动在喂低位价值、而高位价值长期没被喂到的信号。</p>`;
-  html+=`<h2>⚠️ 仅供参考</h2><p>这是一份基于你当下自评的<b>趣味画像</b>，不是标准心理测评，也不能替代专业心理咨询。人的价值权重会随人生阶段漂移——过阵子再来测，可能又是另一番风景。真正拿主意的，永远是你自己的感受。</p>`;
+  html+=`<h2>⚠️ 仅供参考</h2><p>这是一份基于你当下自评的<b>趣味画像</b>，不是标准心理测评，也不能替代专业心理咨询。价值倾向没有优劣，只代表不同驱动力；权重也会随人生阶段漂移——过阵子再来测，可能又是另一番风景。真正拿主意的，永远是你自己的感受。<br><b>免责声明：</b>本测评用于帮助个人理解自身价值倾向，不用于判断个人能力、人格优劣，也不得直接作为招聘录用依据。</p>`;
   html+=`<h2>📊 这份测试的信效度</h2><p>
 这是一份<b>趣味向三选一快照</b>，不是标准化心理量表，<b>效度有上限</b>：每题三选一会压缩「三个都像我」的复杂情况，但对中等强度价值已有一定区分力。<br>
 为此做了四道保险提升可靠性：① <b>乱选检测</b>（见上方提示）；② <b>多锚定</b>——18 道题中每个价值被问 6 次，降低单题随机波动；③ <b>置信度</b>——上方标注了类型判定的可信等级；④ <b>重测对比</b>——下方展示你与上次的画像差异。<br>
 <b>怎么用更准</b>：隔几天、不同情绪下各测一次，多次稳定出来的那几个，才是你真正的核心驱动。</p>`;
   html+=`<h2>🔀 和「企业版」结果对不上？</h2><p>这是正常的。本趣味版问的是<b>生活场景、直觉反应下的你</b>——三选一、快判断，测的是"卸下角色、自然状态的我"；而企业版问的是<b>职场情境、深思熟虑下的你</b>——5 级量表、逐题打分，测的是"穿上工装、进入角色后的我"。两个"我"本就可能不同：工作时你也许更看重尊重与规则，生活里你可能更追求成就与自由。<b>差异不是矛盾，而是你不同面向的真实写照</b>。两版合在一起看，才是一个更完整的你。</p>`;
-  if(prevEntry && prevEntry.norm){
+  if(prevEntry && prevEntry.norm && prevEntry.norm.exploration!==undefined){
     const pn=prevEntry.norm;
     const keys=Object.keys(norm);
     let sum=0, maxK='', maxD=0;
@@ -361,6 +390,22 @@ function buildReport(norm, careless, prevEntry, conf){
 }
 function copyReport(){ const txt=document.getElementById('report').innerText; if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>alert('报告已复制，可粘贴分享～')); } else { alert('当前环境不支持自动复制，请手动选择文本复制。'); } }
 function downloadReport(name){ const txt=document.getElementById('report').innerText; const blob=new Blob([txt],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(name||'价值观报告')+'.md'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+function saveImage(){
+  var target=document.getElementById('result');
+  if(!target || target.classList.contains('hidden')){ alert('请先完成测评再保存图片。'); return; }
+  if(typeof html2canvas==='undefined'){ alert('图片导出组件未加载，请检查网络后刷新重试。'); return; }
+  var btn=event&&event.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
+  html2canvas(target,{backgroundColor:'#faf9f7',scale:2,useCORS:true,scrollY:0,windowWidth:document.documentElement.clientWidth}).then(function(canvas){
+    var a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download='价值观报告-'+Date.now()+'.png';
+    a.click();
+    if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
+  }).catch(function(){
+    alert('图片生成失败，可尝试用手机截屏保存。');
+    if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
+  });
+}
 
 // ===== 主流程 =====
 renderQuiz();
@@ -378,15 +423,16 @@ document.getElementById('go').onclick=()=>{
   submitResult({type:'fun', t:Date.now(), norm, key:ty.key, typeName:t1.n, clanName:ty.clan.n, careless});
   document.getElementById('persona').innerHTML=
     `<div class="emoji">${t1.e}</div><div class="pname">${t1.n}</div>
-     <div class="pdesc">主人格 · 你最在意 ${t1.d}</div>
+     <div class="pdesc">核心价值原型 · 你最在意 ${t1.d}</div>
      <div class="ptag">${ty.clan.n} · ${ty.info.one}</div>
-     <div class="ptag">副人格 ${t2.e} ${t2.n} · 也在意 ${t2.d}</div>`;
-  const txt=`我是【${t1.n}】${t1.e} · ${ty.clan.n}（${ty.info.one}）。\n社交超能力：${ty.info.super}\n雷区：${ty.info.mine}\n最合拍：${ty.info.match.join('、')}\n你测出来是啥型？ #价值观人格 #${t1.n}型 ${ty.clan.tag} 👉`;
+     <div class="ptag">辅助原型 ${t2.e} ${t2.n} · 也在意 ${t2.d}</div>
+     <div style="font-size:11px;color:#9a7a5f;margin-top:6px">价值原型是当下的价值偏好，不代表固定人格</div>`;
+  const txt=`我是【${t1.n}】${t1.e} · ${ty.clan.n}（${ty.info.one}）。\n社交超能力：${ty.info.super}\n雷区：${ty.info.mine}\n最合拍：${ty.info.match.join('、')}\n你测出来是啥型？ #价值原型 #${t1.n}型 ${ty.clan.tag} 👉`;
   document.getElementById('sharetxt').textContent=txt;
   renderGrid(norm);
   let hist=[]; try{hist=JSON.parse(localStorage.getItem('vc_history')||'[]');}catch(e){}
   const prevEntry = hist.length? hist[hist.length-1] : null;
-  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观趣味版报告\')">⬇️ 下载报告</button></div>'+buildReport(norm, careless, prevEntry, conf);
+  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观趣味版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage()">📸 保存为图片</button></div>'+buildReport(norm, careless, prevEntry, conf);
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('result').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});

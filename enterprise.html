@@ -95,7 +95,7 @@
   <!-- 问卷 -->
   <a href="intro.html" style="display:block;text-decoration:none;background:linear-gradient(135deg,#1f4d3a,#2d6b50);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;margin:0 0 14px;line-height:1.5">🌿 <b style="color:#ffd9a8">组织生命力实验室</b> · 价值观是个人生命力的能量底座——测清它，既看见自己，也贡献于组织能量诊断 →</a>
   <div class="card no-print" id="quizCard">
-    <h2>📋 测评问卷（18 题 · 约 4 分钟）</h2>
+    <h2>📋 测评问卷（18 题价值观 + 6 题行为倾向 · 约 5 分钟）</h2>
     <p style="color:var(--sub);font-size:13px;margin-top:-6px">
       请按「在职场中的真实状态」作答，没有对错。1=非常不像我，5=非常像我。</p>
     <div id="questions"></div>
@@ -118,18 +118,19 @@
   <div style="font-size:10px;color:#999">© 组织生命力实验室 · 基于 Schwartz 普世价值观理论</div>
 </div>
 
+<script src="html2canvas.min.js"></script>
 <script>
 /* ============ 题库：9 价值 × 2 题（含反向题测谎） ============ */
 const QUIZ=[
  {v:'achievement', t:'我渴望在团队里拿到可衡量的成果、业绩或头衔。', r:false},
- {v:'achievement', t:'相比“赢”，我更在意别给自己太大压力。', r:true},
- {v:'conservation', t:'我重视沿用被验证过的流程，不喜欢反复折腾。', r:false},
- {v:'conservation', t:'我常主动推翻旧方法、探索新路子。', r:true},
+ {v:'achievement', t:'相比"赢"，我更在意别给自己太大压力。', r:true},
+ {v:'exploration', t:'我常主动尝试新方法、新工具，哪怕旧办法还能用。', r:false},
+ {v:'exploration', t:'我偏好沿用被验证过的流程，不喜欢反复折腾。', r:true},
  {v:'caring', t:'看到同事状态不对，我会主动关心并搭把手。', r:false},
  {v:'caring', t:'工作就是工作，我不愿掺太多私人情绪。', r:true},
  {v:'freedom', t:'我需要自己安排节奏和方式的自由度，否则很难受。', r:false},
  {v:'freedom', t:'我更愿意按上级定好的规矩一步步走。', r:true},
- {v:'respect', t:'我希望专业判断被认真听取，而不是被当工具人。', r:false},
+ {v:'respect', t:'我希望专业判断被认真听取，有影响力和话语权。', r:false},
  {v:'respect', t:'上级怎么看我，我不太往心里去。', r:true},
  {v:'tradition', t:'我认同团队里代代相传的做事规矩与文化。', r:false},
  {v:'tradition', t:'老规矩大多该被打破。', r:true},
@@ -143,46 +144,46 @@ const QUIZ=[
 
 const VALUE_META={
  achievement:{cn:'成就', row:0, col:0},
- conservation:{cn:'守成', row:0, col:1},
+ exploration:{cn:'探索', row:0, col:1},
  caring:{cn:'关怀', row:0, col:2},
  freedom:{cn:'自由', row:1, col:0},
- respect:{cn:'尊重', row:1, col:1},
+ respect:{cn:'影响力', row:1, col:1},
  tradition:{cn:'传统', row:1, col:2},
  enjoyment:{cn:'享乐', row:2, col:0},
  stability:{cn:'稳定', row:2, col:1},
- justice:{cn:'公正', row:2, col:2}
+ justice:{cn:'公平公正', row:2, col:2}
 };
 
 /* 管理建议：用大白话 + 具体动作，面向管理者 */
 const MANAGE={
  achievement:{lev:'怎么激励他',txt:'给他清晰、可量化的目标和截止线；事情做成后公开认可，最好能挂上他的名字。',
-   risk:'注意：别只画大饼，要给真实反馈；他怕失败，重大创新前先说清“试错也安全”，否则他会保守。'},
- conservation:{lev:'怎么激励他',txt:'把流程和标准定清楚，别让他天天救火；要变动前先打个招呼。',
-   risk:'注意：转型或改革时他最容易抵触，提前讲清“为什么变”，别硬推。'},
- caring:{lev:'怎么激励他',txt:'多问一句“最近怎么样”；让他带新人、搞团建这类有人味的事。',
+   risk:'注意：别只画大饼，要给真实反馈；他怕失败，重大创新前先说清"试错也安全"，否则他会保守。'},
+ exploration:{lev:'怎么激励他',txt:'给他"第一个试"的机会——新项目、新工具、新市场，让他带头尝鲜。',
+   risk:'注意：他容易"尝完就走"不深入；约定每个尝试要留下复盘或产出，别让新鲜感变空转。'},
+ caring:{lev:'怎么激励他',txt:'多问一句"最近怎么样"；让他带新人、搞团建这类有人味的事。',
    risk:'注意：他容易替别人扛情绪、自己耗干；做裁员、差评这类硬决策时，安排别人先上或陪他一起。'},
  freedom:{lev:'怎么激励他',txt:'定好目标就放手，别盯过程；允许他自己排班、排期。',
    risk:'注意：散养可以，但底线规则（如交付时间）要白纸黑字对齐，否则容易失序。'},
- respect:{lev:'怎么激励他',txt:'认真听他的专业意见，重要决策拉他参与，让他知道“这事儿他也有一部分话语权”。',
+ respect:{lev:'怎么激励他',txt:'认真听他的专业意见，重要决策拉他参与，让他知道"这事儿他也有一部分话语权"。',
    risk:'注意：他一旦觉得被当工具人，会很快走；哪怕再忙，也要回他的专业输入。'},
- tradition:{lev:'怎么激励他',txt:'用团队文化和“咱们一直这么干”的传承感来凝聚他。',
+ tradition:{lev:'怎么激励他',txt:'用团队文化和"咱们一直这么干"的传承感来凝聚他。',
    risk:'注意：他可能排外、守住老方法；要创新时借外部人或先小范围试点，别硬撞。'},
  enjoyment:{lev:'怎么激励他',txt:'氛围搞起来，团队活动、轻松的节点安排上；枯燥活儿里掺点趣味。',
    risk:'注意：硬仗、长期高压期他容易掉链子，关键项目配个能扛压的搭档兜底。'},
  stability:{lev:'怎么激励他',txt:'岗位和考核尽量可预期，少搞突然的组织调整；要变之前提前同步。',
    risk:'注意：他不爱挑没把握的大梁，给挑战性任务时要配支持，不然他会缩回去。'},
  justice:{lev:'怎么激励他',txt:'规则公平、申诉有门；让他参与制定团队规矩，他会很来劲。',
-   risk:'注意：遇到不公他反应会很大，甚至成“刺头”；矛盾别捂，尽快透明处理。'}
+   risk:'注意：遇到不公他反应会很大，甚至成"刺头"；矛盾别捂，尽快透明处理。'}
 };
 
 /* 价值解读：高分/低分分别意味着什么（帮助自我理解） */
 const VALUE_INTERP={
  achievement:{hi:'该员工由目标和成果驱动，拿下可见成绩时最有干劲；',lo:'该员工不太被头衔和排名牵着走，更认事情本身的意义；'},
- conservation:{hi:'该员工信赖成熟流程，讨厌无谓折腾，是团队里的“稳定器”；',lo:'该员工喜欢打破常规、试新路子，老方法容易让其感到无聊；'},
+ exploration:{hi:'该员工爱尝鲜、敢试新方法，是团队的破局者；',lo:'该员工偏好沿用成熟流程，不太主动折腾新东西；'},
  caring:{hi:'该员工天然在意人，团队的温度和同事的状态会直接影响其状态；',lo:'该员工更就事论事，不太把私人情绪带进工作；'},
  freedom:{hi:'该员工需要自己掌控节奏和方式，被 micromanage 会使其憋坏；',lo:'该员工偏好清晰的规则和上级定的框架，按部就班更安心；'},
- respect:{hi:'该员工要被当回事——专业判断被认真听、被尊重，是其留下的关键；',lo:'该员工不太在意上级怎么看，更认事情本身的对错；'},
- tradition:{hi:'该员工认同并愿意延续团队的文化与老规矩；',lo:'该员工对“历来如此”没执念，该破就破；'},
+ respect:{hi:'该员工要被当回事——专业判断被认真听、有影响力，是其留下的关键；',lo:'该员工不太在意上级怎么看，更认事情本身的对错；'},
+ tradition:{hi:'该员工认同并愿意延续团队的文化与老规矩；',lo:'该员工对"历来如此"没执念，该破就破；'},
  enjoyment:{hi:'该员工要在工作里有乐趣和轻松感，苦哈哈的环境留不住人；',lo:'为了结果该员工能扛苦扛累，氛围不是第一位的；'},
  stability:{hi:'该员工要可预期、不突变的环境，变动大时会慌；',lo:'该员工不怕变、甚至渴望新鲜，长期不变会闷；'},
  justice:{hi:'该员工见不得不公，遇到会想推动修正；',lo:'该员工不太较真公平与否，差不多就行；'}
@@ -190,36 +191,63 @@ const VALUE_INTERP={
 
 /* 发展建议：低位价值怎么补（具体、不评判） */
 const VALUE_DEV={
- achievement:{t:'“成就”偏弱：该员工不太追排名。发展上可刻意攒“可见成果”——把做成的项目写成案例、在复盘会上讲一讲，让努力被看见。'},
- conservation:{t:'“守成”偏弱：该员工爱破局。可练“先稳后变”——重大改动前先备份旧流程，降低试错成本，别人也更敢让其试。'},
- caring:{t:'“关怀”偏弱：该员工偏就事论事。带人时不妨多问一句“最近怎么样”，关系资本会反过来帮其把事推顺。'},
- freedom:{t:'“自由”偏弱：该员工习惯被安排。可在一个小任务上自己定一次节奏，慢慢长出主见。'},
- respect:{t:'“尊重”偏弱：该员工不太在意评价。可练“向上管理”——主动同步进展，让关键人知道其价值，机会才轮得到。'},
- tradition:{t:'“传统”偏弱：该员工常破常规。可学“借老规矩的力”，用现有文化降低推行阻力。'},
- enjoyment:{t:'“享乐”偏弱：该员工能扛苦。但要给其留个“喘气阀”（固定休息、一个爱好），避免长期紧绷耗竭。'},
- stability:{t:'“稳定”偏弱：该员工不怕变。发展上给其加一层“自有节奏”（周计划、看板），不是坐班式稳定，而是自有节奏不乱。'},
- justice:{t:'"公正"偏弱：该员工不太较真。涉及原则的事上，练"温和但坚定"地守住底线。'}
+ achievement:{t:'"成就"偏弱：该员工不太追排名。发展上可刻意攒"可见成果"——把做成的项目写成案例、在复盘会上讲一讲，让努力被看见。'},
+ exploration:{t:'"探索"偏弱：该员工不太主动尝鲜。可给其一个小范围"试新"任务（新工具、新渠道），降低试错成本，慢慢养出好奇心。'},
+ caring:{t:'"关怀"偏弱：该员工偏就事论事。带人时不妨多问一句"最近怎么样"，关系资本会反过来帮其把事推顺。'},
+ freedom:{t:'"自由"偏弱：该员工习惯被安排。可在一个小任务上自己定一次节奏，慢慢长出主见。'},
+ respect:{t:'"影响力"偏弱：该员工不太在意评价。可练"向上管理"——主动同步进展，让关键人知道其价值，机会才轮得到。'},
+ tradition:{t:'"传统"偏弱：该员工常破常规。可学"借老规矩的力"，用现有文化降低推行阻力。'},
+ enjoyment:{t:'"享乐"偏弱：该员工能扛苦。但要给其留个"喘气阀"（固定休息、一个爱好），避免长期紧绷耗竭。'},
+ stability:{t:'"稳定"偏弱：该员工不怕变。发展上给其加一层"自有节奏"（周计划、看板），不是坐班式稳定，而是自有节奏不乱。'},
+ justice:{t:'"公平公正"偏弱：该员工不太较真。涉及原则的事上，练"温和但坚定"地守住底线。'}
 };
 
 /* 高压预警：某项价值过高时的过载风险（按价值区分，不再共用一套话术） */
 const SHADOW_WARN={
  achievement:'要注意「成就」偏高的员工：他可能把"把事做好"和"证明自己行"混在一起，越努力越怕被否定，长期容易透支、倦怠。带教时帮他把"事情本身的价值"和"用来证明自己的压力"分开看，状态会更健康。',
- respect:'要注意「尊重」偏高的员工：他可能过度依赖外界认可，一旦没被看见就容易自我怀疑或情绪化。带教时帮他把"自我评价"从"别人怎么看"里独立出来——他的价值不必靠他人背书。',
+ respect:'要注意「影响力」偏高的员工：他可能过度依赖外界认可，一旦没被看见就容易自我怀疑或情绪化。带教时帮他把"自我评价"从"别人怎么看"里独立出来——他的价值不必靠他人背书。',
  caring:'要注意「关怀」偏高的员工：他容易替团队扛情绪、把别人的事当自己的事，最先耗干的往往是他自己。带教时帮他划清"能帮的"和"该放手的"，硬决策（裁员、差评）安排别人先上或陪他一起。'
 };
 
 /* 岗位原型：imp=重要价值，caution=过高需关注 */
 const ARCH={
  orgOps:{cn:'组织运营 / HR', desc:'搭流程、带人、做组织机制', imp:['caring','respect','stability','justice'], caution:['freedom']},
- sales:{cn:'销售 / 业务拓展', desc:'冲业绩、拓客户', imp:['achievement','enjoyment','freedom'], caution:['conservation','tradition']},
- rnd:{cn:'研发 / 技术', desc:'钻研技术、搞创新', imp:['achievement','freedom'], caution:['tradition','conservation']},
+ sales:{cn:'销售 / 业务拓展', desc:'冲业绩、拓客户', imp:['achievement','enjoyment','freedom'], caution:['tradition','stability']},
+ rnd:{cn:'研发 / 技术', desc:'钻研技术、搞创新', imp:['achievement','freedom','exploration'], caution:['tradition']},
  leader:{cn:'综合管理 / 管理者', desc:'带团队、扛结果', imp:['achievement','caring','respect','stability'], caution:[]},
  cs:{cn:'客户成功 / 服务', desc:'服务客户、维护关系', imp:['caring','respect','enjoyment'], caution:[]},
- grc:{cn:'合规 / 风控', desc:'守规则、控风险', imp:['conservation','tradition','justice','stability'], caution:['freedom']}
+ grc:{cn:'合规 / 风控', desc:'守规则、控风险', imp:['stability','tradition','justice'], caution:['freedom','exploration']}
 };
+
+/* 驱动力组合（与趣味版共享逻辑） */
+const QUAD={achievement:'drive',respect:'drive',freedom:'open',exploration:'open',enjoyment:'open',stability:'ground',tradition:'ground',caring:'care',justice:'care'};
+const COMBO={
+  'care|drive':{n:'使命驱动型',d:'希望通过做成事来帮助他人——要的不只是赢，而是"有意义的赢"。'},
+  'drive|open':{n:'探索突破型',d:'追求成长、自主与新鲜感，敢闯敢试，最怕原地踏步。'},
+  'drive|ground':{n:'稳进经营型',d:'目标感强但走得稳，擅长把事情做成并长期经营下去。'},
+  'drive|drive':{n:'进取登峰型',d:'强目标、强认可驱动，冲劲十足，是天然的攻坚者。'},
+  'care|open':{n:'人本创新型',d:'想用新方法让人过得更好，温暖而灵活。'},
+  'ground|open':{n:'张弛平衡型',d:'既要新鲜也要底盘——变化可以，但节奏得自己说了算。'},
+  'open|open':{n:'自由探索型',d:'自主与新鲜感是第一生产力，被框住就会枯萎。'},
+  'care|ground':{n:'守护凝聚型',d:'建秩序、护人心，是团队和关系里的粘合剂。'},
+  'ground|ground':{n:'秩序建设型',d:'擅长建立规则、营造确定性，是长期主义者。'},
+  'care|care':{n:'利他共益型',d:'他人福祉与公平是核心罗盘。'}
+};
+function comboOf(k1,k2){ const key=[QUAD[k1],QUAD[k2]].sort().join('|'); return COMBO[key]; }
+
+/* 行为倾向模块：6 组职场行为二选一，补充价值观→行为的桥梁 */
+const BEHAVIOR_QUIZ=[
+  {q:'面对突如其来的变化，你更可能？', a:{t:'探索新的可能',v:'exploration'}, b:{t:'先把已有流程稳住',v:'stability'}},
+  {q:'团队出现分歧时，你更倾向？', a:{t:'优先维护关系和氛围',v:'caring'}, b:{t:'优先推动目标和结果',v:'achievement'}},
+  {q:'面对一个新机会，你更可能？', a:{t:'先试了再说，边做边看',v:'exploration'}, b:{t:'充分评估后再动手',v:'stability'}},
+  {q:'你觉得好领导最重要的特质是？', a:{t:'公平公正、一视同仁',v:'justice'}, b:{t:'有魄力、能带着大家赢',v:'respect'}},
+  {q:'工作中你最受不了的是？', a:{t:'被管头管脚、没有自主空间',v:'freedom'}, b:{t:'氛围压抑、没有乐趣',v:'enjoyment'}},
+  {q:'面对一项没人做过的新任务，你？', a:{t:'兴奋，终于可以试试新东西了',v:'exploration'}, b:{t:'先找找有没有类似的先例和经验',v:'tradition'}}
+];
 
 /* ============ 状态 ============ */
 let ans=new Array(QUIZ.length).fill(0);
+let behaviorAns=new Array(BEHAVIOR_QUIZ.length).fill(null);
 
 /* ============ 渲染问卷 ============ */
 function renderQuiz(){
@@ -233,6 +261,15 @@ function renderQuiz(){
     });
     h+=`</div></div>`;
   });
+  // 行为倾向题
+  h+=`<div style="margin:20px 0 6px;font-size:15px;font-weight:700;color:var(--accent)">🧭 行为倾向（6题·二选一）</div>`;
+  h+=`<p style="color:var(--sub);font-size:13px;margin:-4px 0 12px">价值观不一定直接预测行为——这 6 题帮你看清"从价值到行动"的真实偏好。</p>`;
+  BEHAVIOR_QUIZ.forEach((it,i)=>{
+    h+=`<div class="q"><div class="qt"><span class="idx">B${i+1}.</span>${it.q}</div><div class="scale">`;
+    h+=`<label onclick="pickBehavior(${i},'a',this)"><input type="radio" name="b${i}" value="a"><span>${it.a.t}</span></label>`;
+    h+=`<label onclick="pickBehavior(${i},'b',this)"><input type="radio" name="b${i}" value="b"><span>${it.b.t}</span></label>`;
+    h+=`</div></div>`;
+  });
   box.innerHTML=h;
 }
 function pick(i,val,el){
@@ -240,8 +277,19 @@ function pick(i,val,el){
   const grp=el.parentElement.querySelectorAll('label');
   grp.forEach(l=>l.classList.remove('sel'));
   el.classList.add('sel');
-  const done=ans.filter(x=>x>0).length;
-  document.getElementById('genBtn').disabled = done<QUIZ.length;
+  checkDone();
+}
+function pickBehavior(i,choice,el){
+  behaviorAns[i]=choice;
+  const grp=el.parentElement.querySelectorAll('label');
+  grp.forEach(l=>l.classList.remove('sel'));
+  el.classList.add('sel');
+  checkDone();
+}
+function checkDone(){
+  const mainDone=ans.filter(x=>x>0).length;
+  const behDone=behaviorAns.filter(x=>x!==null).length;
+  document.getElementById('genBtn').disabled = (mainDone<QUIZ.length || behDone<BEHAVIOR_QUIZ.length);
 }
 
 /* ============ 计分 ============ */
@@ -284,31 +332,64 @@ function validity(norm){
   return flags;
 }
 
-/* ============ 招聘匹配 ============ */
-function fitOf(key,norm){
+/* ============ 招聘匹配（定性，非百分比） ============ */
+function fitLevel(key,norm){
   const a=ARCH[key];
   const vals=a.imp.map(v=>norm[v]);
   const avg=vals.reduce((s,x)=>s+x,0)/vals.length;
-  return Math.round((avg-1)/8*100);
+  // 返回定性等级
+  if(avg>=7) return 'high';
+  if(avg>=5) return 'mid';
+  return 'low';
 }
 function archReport(norm){
-  const list=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,desc:ARCH[k].desc,fit:fitOf(k,norm)}));
-  list.sort((a,b)=>b.fit-a.fit);
-  let h='<h2>🎯 招聘 / 岗位匹配（动机契合参考）</h2>';
-  h+='<p style="color:var(--sub);font-size:13px">匹配度看的是<b>「价值观动机」</b>和岗位的吻合程度（0–100），不是该员工的兴趣或能力。'
-    +'该员工完全可能某岗动机不算最贴，却因为热爱和研究把它做得很深——这种情况，动机匹配是「加分项」而非「门槛」。所以下面这栏，是用来帮管理者<b>理解该员工</b>，不是给其贴「能不能做」的标签。</p>';
-  list.forEach((it,idx)=>{
-    const caution=ARCH[it.k].caution.filter(v=>norm[v]>=6.5)
-      .map(v=>VALUE_META[v].cn);
-    const tag = it.fit>=70 ? ' <span class="pill core">动机合拍</span>' : (it.fit<40?' <span class="pill weak">需补位</span>':'');
-    const cau = caution.length ? ` <span class="pill shadow">注意 ${caution.join('·')}偏高</span>` : '';
-    const meaning = idx<2 ? `<div style="margin:-4px 0 8px 140px;font-size:12px;color:var(--sub)">这类岗位大致是：${it.desc}。${tag||cau?'':''}</div>` : '';
-    h+=`<div class="fitrow"><div class="name">${it.cn}</div><div class="bar"><i style="width:${it.fit}%"></i></div><div class="pct">${it.fit}%</div></div>`;
-    if(tag||cau) h+=`<div style="margin:-4px 0 8px 140px;font-size:12px">${tag}${cau}</div>`;
-    else if(meaning) h+=meaning;
+  const list=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,desc:ARCH[k].desc,level:fitLevel(k,norm)}));
+  // 按等级排序
+  const order={high:0,mid:1,low:2};
+  list.sort((a,b)=>order[a.level]-order[b.level]);
+  let h='<h2>🎯 岗位价值倾向匹配（定性参考）</h2>';
+  h+='<p style="color:var(--sub);font-size:13px">以下看的是<b>「价值观动机」</b>与岗位的吻合程度，不是能力或绩效判断。<b>价值倾向没有优劣</b>，只代表不同驱动力。<br>该员工完全可能某岗动机不算最贴，却因热爱和研究做得很深——匹配是「理解」而非「门槛」。</p>';
+  const levelMap={
+    high:{label:'较高一致性',cls:'core',note:'该岗位的重要价值与其核心驱动高度重合，做起来自带内驱力。'},
+    mid:{label:'部分一致',cls:'shadow',note:'能做，但部分核心价值未被岗位喂到，需要流程或搭档补位。'},
+    low:{label:'较低一致性',cls:'weak',note:'该岗位不太喂到其核心驱动，硬做易耗，除非有强互补搭档。'}
+  };
+  list.forEach(it=>{
+    const lm=levelMap[it.level];
+    const caution=ARCH[it.k].caution.filter(v=>norm[v]>=6.5).map(v=>VALUE_META[v].cn);
+    const cau=caution.length?` <span class="pill shadow">注意 ${caution.join('·')}偏高</span>`:'';
+    h+=`<div class="fitrow"><div class="name">${it.cn}</div><div style="flex:1"><span class="pill ${lm.cls}">${lm.label}</span>${cau}</div></div>`;
+    h+=`<div style="margin:-4px 0 6px 140px;font-size:12px;color:var(--sub)">${lm.note} 这类岗位大致是：${it.desc}。</div>`;
   });
-  h+='<p class="footer-note">怎么读：<b>≥70%</b> 动机天然合拍，做起来自带内驱力；<b>40–69%</b> 能做，但需外部结构（流程/搭档）补位；'
-    +'<b>&lt;40%</b> 硬做易耗，除非有强互补搭档。匹配度不替代胜任力与业绩评估，低匹配也未必不能用。</p>';
+  h+='<p class="footer-note">匹配不替代胜任力与业绩评估。低匹配也未必不能用——有些岗位恰恰需要不同视角的人来破局。</p>';
+  return h;
+}
+
+/* ============ 行为倾向报告 ============ */
+function behaviorReport(){
+  const count={}; for(const k in VALUE_META) count[k]=0;
+  BEHAVIOR_QUIZ.forEach((it,i)=>{
+    if(behaviorAns[i]==='a') count[it.a.v]++;
+    else if(behaviorAns[i]==='b') count[it.b.v]++;
+  });
+  const sorted=Object.entries(count).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);
+  let h='<h2>🧭 行为倾向画像</h2>';
+  h+='<p style="color:var(--sub);font-size:13px">价值观不一定直接预测行为——以下是你 6 个职场场景的真实偏好，结合价值观看更立体。</p>';
+  if(sorted.length){
+    h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">';
+    sorted.forEach(e=>{
+      h+=`<span class="pill core">${VALUE_META[e[0]].cn} × ${e[1]}</span>`;
+    });
+    h+='</div>';
+    const top=sorted[0];
+    h+=`<p>你在行为层面最常体现的是 <b>${VALUE_META[top[0]].cn}</b> 倾向。`;
+    if(sorted.length>=2){
+      h+=` 第二是 <b>${VALUE_META[sorted[1][0]].cn}</b>。`;
+    }
+    h+=' 注意：行为偏好和价值观排序未必完全一致——差异本身就是有价值的信息。</p>';
+  }else{
+    h+='<p>（行为题未作答）</p>';
+  }
   return h;
 }
 
@@ -419,6 +500,22 @@ function buildReport(norm,flags,prev){
 
   h+=interpReport(norm,coreTop,weak,balanced);
 
+  // 驱动力组合
+  if(coreTop.length>=2){
+    const combo=comboOf(coreTop[0],coreTop[1]);
+    if(combo){
+      const aux=ranked.slice(2,4).map(v=>VALUE_META[v].cn);
+      h+=`<h2>🧩 驱动力组合</h2><p>
+      <b>核心驱动力</b>：${VALUE_META[coreTop[0]].cn} + ${VALUE_META[coreTop[1]].cn} → <span class="pill core">${combo.n}</span><br>
+      ${combo.d}<br>
+      <b>辅助驱动力</b>：${aux.join('、')}——当核心驱动被满足或受阻时，它们会补位影响选择。<br>
+      <b>决策模式</b>：两难时，通常先满足「${VALUE_META[coreTop[0]].cn}」，再兼顾「${VALUE_META[coreTop[1]].cn}」——如果一个选择两者都喂不到，容易拖延或反悔。</p>`;
+    }
+  }
+
+  // 行为倾向
+  h+=behaviorReport();
+
   h+=archReport(norm);
   h+=mgmtReport(coreTop);
   h+=devReport(coreTop,weak,shadow);
@@ -445,7 +542,10 @@ function buildReport(norm,flags,prev){
     </ul>`;
 
   h+=`<h2>🔀 和「趣味版」结果对不上？</h2>
-    <p>这是正常的。本企业版问的是<b>职场情境、深思熟虑下的你</b>——5 级量表、逐题打分，测的是"进入工作角色后的我"；而趣味版问的是<b>生活场景、直觉反应下的你</b>——三选一、快判断，测的是"卸下角色、自然状态的我"。两个"我"本就可能不同：工作里你把尊重和公正排在前面，生活里你可能更被成就和自由驱动。<b>差异不是矛盾，而是你不同面向的真实写照</b>。两版合在一起看，才是一个更完整的你。</p>`;
+    <p>这是正常的。本企业版问的是<b>职场情境、深思熟虑下的你</b>——5 级量表、逐题打分，测的是"进入工作角色后的我"；而趣味版问的是<b>生活场景、直觉反应下的你</b>——三选一、快判断，测的是"卸下角色、自然状态的我"。两个"我"本就可能不同：工作里你把影响力和公正排在前面，生活里你可能更被成就和自由驱动。<b>差异不是矛盾，而是你不同面向的真实写照</b>。两版合在一起看，才是一个更完整的你。</p>`;
+
+  h+=`<h2>⚠️ 免责声明</h2>
+    <p>本测评用于帮助个人和组织理解价值倾向，不用于判断个人能力、人格优劣，也不得直接作为招聘录用、淘汰或晋升的依据。价值倾向没有优劣，只代表不同驱动力。结果仅反映<b>当下自评</b>，会随人生阶段和情境漂移。</p>`;
 
   return h;
 }
@@ -465,13 +565,14 @@ function generate(){
   const archList=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,fit:fitOf(k,norm)})).sort((a,b)=>b.fit-a.fit);
   submitResult({type:'enterprise', t:Date.now(), norm,
     top:coreTop, topNames:coreTop.map(v=>VALUE_META[v].cn),
-    weak, weakNames:weak.map(v=>VALUE_META[v].cn), shadow, flags, archTop:archList[0]});
+    weak, weakNames:weak.map(v=>VALUE_META[v].cn), shadow, flags, archTop:archList[0],
+    behavior:behaviorAns});
   let prev=null;
   try{
     const hist=JSON.parse(localStorage.getItem('vc_enterprise_hist')||'[]');
     if(hist.length) prev=hist[hist.length-1];
   }catch(e){}
-  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观企业版报告\')">⬇️ 下载报告</button></div>'+buildReport(norm,flags,prev);
+  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观企业版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage()">📸 保存为图片</button></div>'+buildReport(norm,flags,prev);
   document.getElementById('report').classList.remove('hidden');
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('actions').style.display='block';
@@ -489,6 +590,22 @@ function copyReport(){
   else { alert('当前环境不支持自动复制，请手动选择文本复制。'); }
 }
 function downloadReport(name){ const txt=document.getElementById('report').innerText; const blob=new Blob([txt],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(name||'价值观报告')+'.md'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+function saveImage(){
+  var target=document.getElementById('report');
+  if(!target || target.classList.contains('hidden')){ alert('请先完成测评再保存图片。'); return; }
+  if(typeof html2canvas==='undefined'){ alert('图片导出组件未加载，请检查网络后刷新重试。'); return; }
+  var btn=event&&event.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
+  html2canvas(target,{backgroundColor:'#f5f7fa',scale:2,useCORS:true,scrollY:0,windowWidth:document.documentElement.clientWidth}).then(function(canvas){
+    var a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download='价值观企业版报告-'+Date.now()+'.png';
+    a.click();
+    if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
+  }).catch(function(){
+    alert('图片生成失败，可尝试用手机截屏保存。');
+    if(btn){btn.textContent='📸 保存为图片';btn.disabled=false;}
+  });
+}
 
 renderQuiz();
 document.getElementById('genBtn').addEventListener('click',generate);
