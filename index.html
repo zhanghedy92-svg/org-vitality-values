@@ -347,6 +347,23 @@ function buildReport(norm, careless, prevEntry, conf, fast){
   html+=`<p style="background:#f3efe8;border-radius:8px;padding:8px 10px;font-size:13px"><b>置信度：${cf.label}</b>　${cf.text}</p>`;
   html+=`<h2>你的核心驱动</h2><p>`+top.map(e=>`<span class="tag">${VALUES[e[0]].nm} ${e[1]}</span>`).join('')+`</p>`;
   html+=`<p>你心里分量最重的，是 <b>${topNames.join('、')}</b>。你的动力和大多数选择，都在喂这几格。</p>`;
+  // 原始选择次数透明化（让用户看到值有多接近）
+  const rawCounts={}; for(const k in VALUES) rawCounts[k]=0;
+  QUIZ.forEach((item,i)=>{ const v=answers[i]==='a'?item.a.v:answers[i]==='b'?item.b.v:item.c.v; rawCounts[v]++; });
+  const sortedRaw=Object.entries(rawCounts).sort((a,b)=>b[1]-a[1]);
+  const maxBar=Math.max(...Object.values(rawCounts));
+  html+=`<h2>📊 原始选择分布（透明化）</h2><p style="font-size:13px;color:var(--muted)">18 题中每个价值最多被选 6 次。看看你的 top 几名差了几票——差得越近，排序越容易因一两次选择变化而翻转。</p>`;
+  html+='<div style="font-size:13px;line-height:2">';
+  sortedRaw.forEach(([k,c])=>{
+    const w=Math.round(c/maxBar*100);
+    html+=`<div style="display:flex;align-items:center;gap:8px"><span style="width:56px;flex:none">${VALUES[k].nm}</span><span style="flex:1;height:14px;background:#f0ece5;border-radius:7px;overflow:hidden"><span style="display:block;height:100%;width:${w}%;background:#e07a3f;border-radius:7px"></span></span><span style="width:28px;flex:none;text-align:right">${c}/6</span></div>`;
+  });
+  html+='</div>';
+  const top3raw=sortedRaw.slice(0,3);
+  const gap=top3raw[0][1]-top3raw[1][1];
+  if(gap<=1){
+    html+=`<p style="font-size:12px;color:#b8531d;background:#fdf1e9;padding:6px 10px;border-radius:8px">⚠️ 你的前 2 名只差 ${gap} 票——排名很可能因下次心境不同而翻转。多次测出来稳定靠前的，才是你真正的核心驱动。</p>`;
+  }
   html+=`<h2>相对靠后的格</h2><p>`+low.map(e=>`<span class="tag">${VALUES[e[0]].nm} ${e[1]}</span>`).join('')+`</p>`;
   html+=`<h2>核心模式</h2><p>你的核心由 <b>${NICK[key].n}${NICK[key].e}</b> 驱动，<b>${top2.n}${top2.e}</b> 是你的第二引擎——当核心需求被满足，第二引擎才会浮上来影响你的选择。这不是标签，是你价值权重的独特配比。</p>`;
   // 驱动力组合解读
@@ -390,11 +407,11 @@ function buildReport(norm, careless, prevEntry, conf, fast){
 }
 function copyReport(){ const txt=document.getElementById('report').innerText; if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>alert('报告已复制，可粘贴分享～')); } else { alert('当前环境不支持自动复制，请手动选择文本复制。'); } }
 function downloadReport(name){ const txt=document.getElementById('report').innerText; const blob=new Blob([txt],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(name||'价值观报告')+'.md'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
-function saveImage(){
+function saveImage(evt){
   var target=document.getElementById('result');
   if(!target || target.classList.contains('hidden')){ alert('请先完成测评再保存图片。'); return; }
   if(typeof html2canvas==='undefined'){ alert('图片导出组件未加载，请检查网络后刷新重试。'); return; }
-  var btn=event&&event.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
+  var btn=evt&&evt.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
   html2canvas(target,{backgroundColor:'#faf9f7',scale:2,useCORS:true,scrollY:0,windowWidth:document.documentElement.clientWidth}).then(function(canvas){
     var a=document.createElement('a');
     a.href=canvas.toDataURL('image/png');
@@ -432,7 +449,7 @@ document.getElementById('go').onclick=()=>{
   renderGrid(norm);
   let hist=[]; try{hist=JSON.parse(localStorage.getItem('vc_history')||'[]');}catch(e){}
   const prevEntry = hist.length? hist[hist.length-1] : null;
-  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观趣味版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage()">📸 保存为图片</button></div>'+buildReport(norm, careless, prevEntry, conf);
+  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观趣味版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage(event)">📸 保存为图片</button></div>'+buildReport(norm, careless, prevEntry, conf);
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('result').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});

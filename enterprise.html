@@ -562,7 +562,7 @@ function generate(){
   const weak=ranked.filter(v=>norm[v]<=3);
   const shadowCands=['achievement','respect','caring'].filter(v=>norm[v]>=6.5).sort((a,b)=>norm[b]-norm[a]);
   const shadow=shadowCands[0]||null;
-  const archList=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,fit:fitOf(k,norm)})).sort((a,b)=>b.fit-a.fit);
+  const archList=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,level:fitLevel(k,norm)}));
   submitResult({type:'enterprise', t:Date.now(), norm,
     top:coreTop, topNames:coreTop.map(v=>VALUE_META[v].cn),
     weak, weakNames:weak.map(v=>VALUE_META[v].cn), shadow, flags, archTop:archList[0],
@@ -572,7 +572,7 @@ function generate(){
     const hist=JSON.parse(localStorage.getItem('vc_enterprise_hist')||'[]');
     if(hist.length) prev=hist[hist.length-1];
   }catch(e){}
-  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观企业版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage()">📸 保存为图片</button></div>'+buildReport(norm,flags,prev);
+  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观企业版报告\')">⬇️ 下载报告</button><button class="rbtn" onclick="saveImage(event)">📸 保存为图片</button></div>'+buildReport(norm,flags,prev);
   document.getElementById('report').classList.remove('hidden');
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('actions').style.display='block';
@@ -590,11 +590,11 @@ function copyReport(){
   else { alert('当前环境不支持自动复制，请手动选择文本复制。'); }
 }
 function downloadReport(name){ const txt=document.getElementById('report').innerText; const blob=new Blob([txt],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(name||'价值观报告')+'.md'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
-function saveImage(){
+function saveImage(evt){
   var target=document.getElementById('report');
   if(!target || target.classList.contains('hidden')){ alert('请先完成测评再保存图片。'); return; }
   if(typeof html2canvas==='undefined'){ alert('图片导出组件未加载，请检查网络后刷新重试。'); return; }
-  var btn=event&&event.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
+  var btn=evt&&evt.target; if(btn){btn.textContent='生成中…';btn.disabled=true;}
   html2canvas(target,{backgroundColor:'#f5f7fa',scale:2,useCORS:true,scrollY:0,windowWidth:document.documentElement.clientWidth}).then(function(canvas){
     var a=document.createElement('a');
     a.href=canvas.toDataURL('image/png');
