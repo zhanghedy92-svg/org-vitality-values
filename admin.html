@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>价值观测评 · 数据看板</title>
+<style>
+  :root{ --bg:#f4f6fa; --card:#fff; --ink:#1f2733; --sub:#5b6776; --line:#e3e8ef;
+    --accent:#2f6df0; --accent2:#13b5a6; --orange:#e07a3f; --warn:#d9534f; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:22px 18px 80px}
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+  header h1{margin:0;font-size:22px}
+  header .meta{color:var(--sub);font-size:13px}
+  .btns button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 14px;
+    font-size:13px;cursor:pointer;margin-left:8px}
+  .btns button.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+  .stat .num{font-size:28px;font-weight:700;color:var(--accent)}
+  .stat .lbl{font-size:13px;color:var(--sub);margin-top:2px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0}
+  .panel h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:6px}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:720px){.twocol{grid-template-columns:1fr}}
+  .barrow{display:flex;align-items:center;gap:8px;margin:6px 0}
+  .barrow .nm{width:96px;font-size:13px;flex:none}
+  .barrow .bar{flex:1;height:16px;background:#eef1f5;border-radius:8px;overflow:hidden}
+  .barrow .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .barrow .val{width:74px;text-align:right;font-size:12px;color:var(--sub);flex:none}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--sub);font-weight:600;background:#fafbfc}
+  .tag{display:inline-block;background:#eef3ff;color:#1f4fb0;border-radius:6px;padding:1px 8px;font-size:12px;margin:1px}
+  .tag.o{background:#fdf1e9;color:#b8531d}
+  .tag.w{background:#fdecec;color:var(--warn)}
+  .tag.g{background:#e9f8f0;color:#1a7a4f}
+  .empty{color:var(--sub);text-align:center;padding:30px}
+  .note{font-size:12px;color:var(--sub);margin-top:8px}
+  .conn{background:#fff7e6;border:1px solid #ffe1a8;color:#8a5a00;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>📊 价值观测评 · 数据看板</h1>
+      <div class="meta" id="meta">加载中…</div>
+    </div>
+    <div class="btns">
+      <button class="ghost" onclick="load()">刷新</button>
+      <button onclick="exportCsv()">导出 CSV</button>
+    </div>
+  </header>
+
+  <div id="conn" class="conn hidden"></div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="twocol">
+    <div class="panel" id="funTypePanel"><h2>🎯 趣味版 · 类型分布</h2><div id="funType"></div></div>
+    <div class="panel" id="funClanPanel"><h2>🌈 趣味版 · 族群分布</h2><div id="funClan"></div></div>
+  </div>
+  <div class="twocol">
+    <div class="panel"><h2>🧬 趣味版 · 九值均值</h2><div id="funVals"></div></div>
+    <div class="panel"><h2>🧬 企业版 · 九值均值</h2><div id="entVals"></div></div>
+  </div>
+  <div class="twocol">
+    <div class="panel"><h2>🏢 企业版 · 岗位匹配 Top1 分布</h2><div id="entArch"></div></div>
+    <div class="panel"><h2>⚠️ 企业版 · 效度旗标</h2><div id="entValid"></div></div>
+  </div>
+
+  <div class="panel">
+    <h2>📋 最近提交</h2>
+    <div id="table"></div>
+  </div>
+  <p class="note">© 组织生命力实验室 · 数据匿名汇总，不收集姓名等个人信息。</p>
+</div>
+
+<script>
+var DATA_URL = ''; // 数据读取端点（待接通后台后填入）
+
+const VALUES=[
+  ['achievement','成就'],['conservation','守成'],['caring','关怀'],['freedom','自由'],
+  ['respect','尊重'],['tradition','传统'],['enjoyment','享乐'],['stability','稳定'],['justice','公正']
+];
+const VN=Object.fromEntries(VALUES);
+
+function fmt(t){if(!t)return '—';const d=new Date(t);return d.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}
+
+function bar(name, val, max, suffix=''){
+  const pct = max>0 ? Math.round(val/max*100) : 0;
+  return `<div class="barrow"><div class="nm">${name}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="val">${val}${suffix}</div></div>`;
+}
+function barF(name, val, max){
+  const pct = max>0 ? Math.round(val/max*100) : 0;
+  return `<div class="barrow"><div class="nm">${name}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="val">${val.toFixed(1)}</div></div>`;
+}
+function countBy(arr, keyFn){
+  const m={}; arr.forEach(x=>{const k=keyFn(x)||'—'; m[k]=(m[k]||0)+1;}); return m;
+}
+function renderBars(elId, map, suffix=''){
+  const entries=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const max=entries.length?entries[0][1]:0;
+  document.getElementById(elId).innerHTML = entries.length
+    ? entries.map(([k,v])=>bar(k, v, max, suffix)).join('')
+    : '<div class="empty">暂无数据</div>';
+}
+
+let DATA=[];
+async function load(){
+  const conn=document.getElementById('conn');
+  try{
+    const r=await fetch(DATA_URL || '/api/data');
+    DATA = await r.json();
+    if(!Array.isArray(DATA)) DATA=[];
+    conn.classList.add('hidden');
+  }catch(e){
+    DATA=[];
+    conn.classList.remove('hidden');
+    conn.innerHTML = DATA_URL
+      ? '<b>⚠️ 连不上数据源。</b>Google 表格 API 可能尚未部署或权限未设为「任何人」。'
+      : (location.hostname==='localhost'||location.hostname==='127.0.0.1'
+        ? '<b>⚠️ 本地后台未启动。</b>请在 values-backend 目录运行 <code>node server.js</code>，再刷新本页。'
+        : '<b>📊 数据汇总功能待启用</b><br>当前测评链接可放心分享，别人测完结果照常显示。<br>后续接通后台后，这里会实时显示汇总数据。');
+    document.getElementById('cards').innerHTML='';
+    ['funType','funClan','funVals','entVals','entArch','entValid','table'].forEach(id=>document.getElementById(id).innerHTML='<div class="empty">无数据</div>');
+    document.getElementById('meta').textContent='未连接';
+    return;
+  }
+  const fun=DATA.filter(d=>d.type==='fun');
+  const ent=DATA.filter(d=>d.type==='enterprise');
+  document.getElementById('meta').textContent=`共 ${DATA.length} 条 · 趣味版 ${fun.length} · 企业版 ${ent.length} · 更新于 ${fmt(Date.now())}`;
+
+  // 统计卡
+  const validEnt = ent.filter(d=>!(d.flags&&d.flags.length));
+  document.getElementById('cards').innerHTML=`
+    <div class="stat"><div class="num">${DATA.length}</div><div class="lbl">总提交</div></div>
+    <div class="stat"><div class="num">${fun.length}</div><div class="lbl">趣味版</div></div>
+    <div class="stat"><div class="num">${ent.length}</div><div class="lbl">企业版</div></div>
+    <div class="stat"><div class="num">${validEnt.length}/${ent.length}</div><div class="lbl">企业版有效作答</div></div>`;
+
+  // 趣味版类型/族群
+  renderBars('funType', countBy(fun, d=>d.typeName));
+  renderBars('funClan', countBy(fun, d=>d.clanName));
+
+  // 九值均值
+  function valAvg(list, elId){
+    if(!list.length){ document.getElementById(elId).innerHTML='<div class="empty">暂无数据</div>'; return; }
+    const sums={}; VALUES.forEach(([k])=>sums[k]=0);
+    list.forEach(d=>{ if(d.norm) VALUES.forEach(([k])=>sums[k]+=(d.norm[k]||0)); });
+    const avgs=VALUES.map(([k,cn])=>[cn, sums[k]/list.length]);
+    const max=Math.max(...avgs.map(x=>x[1]), 9);
+    document.getElementById(elId).innerHTML=avgs.map(([cn,v])=>barF(cn, v, max)).join('');
+  }
+  valAvg(fun,'funVals'); valAvg(ent,'entVals');
+
+  // 企业版岗位 Top1
+  renderBars('entArch', countBy(ent, d=>d.archTop && d.archTop.cn));
+
+  // 企业版效度旗标
+  const flagMap={straight:'全选一致(疑似乱选)',incon:'正反矛盾',neutral:'中立过多'};
+  const fm={}; ent.forEach(d=>{(d.flags||[]).forEach(f=>{const k=flagMap[f]||f; fm[k]=(fm[k]||0)+1;});});
+  const totalFlags=ent.length? Object.values(fm).reduce((a,b)=>a+b,0):0;
+  let fhtml='';
+  if(ent.length){
+    fhtml+=`<p style="font-size:13px">共 ${ent.length} 份，其中 <b>${ent.length-totalFlags+ (Object.keys(fm).length?0:0)}</b> 份无旗标视为有效；触发旗标情况：</p>`;
+    // 有效 = ent.length - 有旗标的份数
+    const flagged=ent.filter(d=>d.flags&&d.flags.length).length;
+    fhtml=`<p style="font-size:13px">共 ${ent.length} 份，<span class="tag g">有效 ${ent.length-flagged}</span> <span class="tag w">有旗标 ${flagged}</span></p>`;
+    fhtml+='<div style="margin-top:6px">';
+    if(Object.keys(fm).length) fhtml+=Object.entries(fm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>bar(k,v,ent.length)).join('');
+    else fhtml+='<div class="empty">无旗标触发</div>';
+    fhtml+='</div>';
+  } else fhtml='<div class="empty">暂无数据</div>';
+  document.getElementById('entValid').innerHTML=fhtml;
+
+  // 最近提交表
+  const recent=DATA.slice().reverse().slice(0,30);
+  if(!recent.length){ document.getElementById('table').innerHTML='<div class="empty">暂无提交</div>'; return; }
+  let th=`<table><thead><tr><th>时间</th><th>类型</th><th>主导</th><th>族群/旗标</th><th>shadow</th></tr></thead><tbody>`;
+  recent.forEach(d=>{
+    const typ = d.type==='fun'?'<span class="tag o">趣味</span>':'<span class="tag">企业</span>';
+    const dom = d.type==='fun' ? (d.typeName||'') : (d.topNames?d.topNames.join('、'):'');
+    const extra = d.type==='fun' ? (d.clanName||'') : ((d.flags&&d.flags.length)? '<span class="tag w">'+d.flags.join('/')+'</span>' : '<span class="tag g">有效</span>');
+    const sh = d.shadow? VN[d.shadow]||d.shadow : '';
+    th+=`<tr><td>${fmt(d.serverT||d.t)}</td><td>${typ}</td><td>${dom}</td><td>${extra}</td><td>${sh}</td></tr>`;
+  });
+  th+='</tbody></table>';
+  document.getElementById('table').innerHTML=th;
+}
+
+function exportCsv(){
+  if(!DATA.length){ alert('暂无数据'); return; }
+  const headers=['时间','类型','主导价值','族群/岗位','效度旗标','shadow'];
+  const rows=DATA.map(d=>{
+    const dom=d.type==='fun'?(d.typeName||''):(d.topNames?d.topNames.join('/'):'');
+    const grp=d.type==='fun'?(d.clanName||''):(d.archTop?d.archTop.cn:'');
+    const flags=(d.flags||[]).join('/');
+    const sh=d.shadow||'';
+    return [fmt(d.serverT||d.t), d.type, dom, grp, flags, sh];
+  });
+  const csv='\uFEFF'+[headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='values-submissions.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+load();
+</script>
+</body>
+</html>

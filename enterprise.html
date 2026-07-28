@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业人才价值观测评 · 招聘匹配与人才发展</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --card:#ffffff; --ink:#1f2733; --sub:#5b6776; --line:#e3e8ef;
+    --accent:#2f6df0; --accent2:#13b5a6; --warn:#d9534f; --soft:#eef3ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65;font-size:15px}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 18px 80px}
+  header.top{background:linear-gradient(120deg,#2f6df0,#13b5a6);color:#fff;border-radius:16px;
+    padding:26px 24px;box-shadow:0 8px 24px rgba(47,109,240,.18)}
+  header.top h1{margin:0 0 6px;font-size:23px}
+  header.top p{margin:0;opacity:.94;font-size:14px}
+  .badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+    padding:3px 10px;border-radius:999px;font-size:12px;margin-top:10px}
+  .disclaimer{background:#fff7e6;border:1px solid #ffe1a8;color:#8a5a00;border-radius:12px;
+    padding:12px 14px;font-size:13px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;
+    margin:16px 0;box-shadow:0 2px 10px rgba(31,39,51,.04)}
+  .card h2{margin:0 0 14px;font-size:18px;display:flex;align-items:center;gap:8px}
+  .q{margin:18px 0;padding-bottom:14px;border-bottom:1px dashed var(--line)}
+  .q:last-child{border-bottom:none}
+  .q .qt{font-weight:600;margin-bottom:8px}
+  .q .qt .idx{color:var(--accent);margin-right:6px}
+  .scale{display:flex;gap:8px;flex-wrap:wrap}
+  .scale label{flex:1;min-width:120px;background:var(--soft);border:1px solid var(--line);
+    border-radius:10px;padding:9px 8px;text-align:center;cursor:pointer;font-size:13px;transition:.15s}
+  .scale label:hover{border-color:var(--accent)}
+  .scale input{display:none}
+  .scale input:checked + span{font-weight:700;color:var(--accent)}
+  .scale label.sel{background:#dce8ff;border-color:var(--accent)}
+  button.gen{display:block;width:100%;padding:15px;margin-top:8px;font-size:16px;font-weight:700;
+    color:#fff;background:var(--accent);border:none;border-radius:12px;cursor:pointer}
+  button.gen:disabled{background:#b9c4d4;cursor:not-allowed}
+  .validity{font-size:13px;padding:10px 12px;border-radius:10px;margin-bottom:12px}
+  .v-ok{background:#e9f8f0;color:#1a7a4f;border:1px solid #b6e8cd}
+  .v-warn{background:#fdecec;color:var(--warn);border:1px solid #f5c2c2}
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 4px}
+  .cell{border-radius:10px;padding:14px 10px;text-align:center;color:#fff;font-weight:700}
+  .cell .cn{font-size:16px}
+  .cell .sc{font-size:13px;opacity:.95;font-weight:600}
+  .cell .tag{display:block;font-size:11px;margin-top:3px;font-weight:500;opacity:.95}
+  .axis{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px}
+  .axis.ver{writing-mode:vertical-rl;height:100%}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+  .pill.core{background:#e3edff;color:#1f4fb0}
+  .pill.shadow{background:#fdeccd;color:#9a6b00}
+  .pill.weak{background:#eef1f5;color:#6b7686}
+  .fitrow{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .fitrow .name{width:130px;font-size:14px;flex:none}
+  .bar{flex:1;height:14px;background:#eef1f5;border-radius:8px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,#2f6df0,#13b5a6)}
+  .fitrow .pct{width:46px;text-align:right;font-size:13px;color:var(--sub);flex:none}
+  .mgmt{border-left:3px solid var(--accent);padding:8px 12px;margin:10px 0;background:var(--soft);border-radius:0 10px 10px 0}
+  .mgmt b{color:var(--accent)}
+  ul.tips{margin:8px 0;padding-left:20px}
+  ul.tips li{margin:5px 0}
+  .copybtn{background:#fff;border:1px solid var(--accent);color:var(--accent);border-radius:10px;
+    padding:10px 16px;cursor:pointer;font-size:14px;font-weight:600}
+  .footer-note{font-size:12px;color:var(--sub);margin-top:10px}
+.rbar{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
+.rbtn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid #2d6b50;border-radius:9px;cursor:pointer;background:#fff;color:#2d6b50;transition:.15s}
+.rbtn:hover{background:#2d6b50;color:#fff}
+  .hidden{display:none}
+  @media print{
+    body{background:#fff}
+    .no-print{display:none!important}
+    .card{box-shadow:none;border:1px solid #ccc}
+    header.top{background:#2f6df0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cell{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>企业人才价值观测评</h1>
+    <p>基于 Schwartz 普世价值观理论 · 5 点量表 · 含测谎反向题 · 输出招聘匹配 / 管理建议 / 发展路径</p>
+    <span class="badge">招聘 · 人才发展 · 团队诊断 · 管理赋能</span>
+  </header>
+
+  <div class="disclaimer no-print">
+    <b>使用说明：</b>本工具为<b>价值观自陈量表</b>，用于辅助理解候选人或员工的动机结构、文化匹配与发展方向。
+    它<b>不得作为录用、淘汰或晋升的唯一依据</b>，不得用于任何形式的就业歧视（性别、年龄、地域、婚育等），
+    最终人事决策须结合岗位胜任力、业绩证据与合规流程。结果仅反映<b>当下自评</b>，会随阶段漂移。
+  </div>
+
+  <!-- 问卷 -->
+  <a href="intro.html" style="display:block;text-decoration:none;background:linear-gradient(135deg,#1f4d3a,#2d6b50);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;margin:0 0 14px;line-height:1.5">🌿 <b style="color:#ffd9a8">组织生命力实验室</b> · 价值观是个人生命力的能量底座——测清它，既看见自己，也贡献于组织能量诊断 →</a>
+  <div class="card no-print" id="quizCard">
+    <h2>📋 测评问卷（18 题 · 约 4 分钟）</h2>
+    <p style="color:var(--sub);font-size:13px;margin-top:-6px">
+      请按「在职场中的真实状态」作答，没有对错。1=非常不像我，5=非常像我。</p>
+    <div id="questions"></div>
+    <button class="gen" id="genBtn" disabled>生成人才测评报告</button>
+  </div>
+
+  <!-- 报告 -->
+  <div id="report" class="hidden"></div>
+
+  <div class="no-print" id="actions" style="display:none;text-align:center;margin-top:14px">
+    <button class="copybtn" onclick="copyReport()">复制报告文本</button>
+    <button class="copybtn" onclick="window.print()">打印 / 导出 PDF</button>
+    <button class="copybtn" onclick="location.reload()">重新测评</button>
+    <div class="footer-note">测评结果会匿名提交到主办方后台用于人才分析，不收集与测评无关的个人信息。</div>
+  </div>
+</div>
+
+<div class="no-print" style="text-align:center;margin:12px auto 20px;max-width:760px;padding:8px 0 0;border-top:1px solid #e8e8e8">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHcAAAB4CAIAAABHDfoIAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAARGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAB3oAMABAAAAAEAAAB4AAAAAM5gZjsAAAHLaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjAuMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIj4KICAgICAgICAgPGV4aWY6Q29sb3JTcGFjZT4xPC9leGlmOkNvbG9yU3BhY2U+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj41MDA8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+NTAyPC9leGlmOlBpeGVsWURpbWVuc2lvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CvFLl8oAADieSURBVHgB7d0HvF1VlTDwd997ee+lJ6RAgoQECIgoAiooolLGDqKOjoXRQRx7d0axzIw6MmN3HLsSAUF07B3UodkVUYpgCRBaaAFSXvJ6m/+9K1nZOffm5c2n8vt+38cRD+usvdpee+21197n3EdtYmKi7b7rL+yB9r+w/PvE1z1wn5fvjTi4z8v3efne8MC9oeP/3li2LP8/szK39vKf3r1dStglQa1xibSdUcLHVYlGyApmio8tpU2Rd3Kyzubm8fHxdevWnXPOOYODg82tk2Pa29uXLVv2tKc9bdasWUE5NDR05ZVXfv/730/GuXPnPuYxj3nwgx+cmApA709/+tNf/OIXM2bMQHnooYfeeeedP/7xj3//+98n5f777//oRz96jz32IPxHP/rRpk2bomnatGlHHnnkwx/+8K6uriQO4He/+93FF1+8fv36Es+zRvP4448/6KCD8EYTmq9//eu33nqrppJ4KvC8efOe97znue9AHANY3sfGxn7961/PnDlzB7opPzzykY80SClww4YN//Ef/1Fy77333p/5zGeSoBnA8rrXvU4POfGTn/ykUefKpz/96aUQfrnsssvwrlq16n73u182dXd3//M//3N/f3+z2M9//vP77LNPUpYAe7Zs2aLjLozXX3/9Qx/60JJg6jCbr7vuuor21hmjo6Nj+vTpUxedlC0Zy4gAi/eenp5kaQaC3j0vgRmBBhP0CXQ2rqDUBCC/WSYMCclVIQh8tgImIa7wVh7Nv5STTS0yhrYwlMvuf//7v+ENb9ARg5M8LYEbb7zx4x//uChOHcFiTjz+8Y+Xf0xqeePb3/42GpTnn3/+0qVLTa4HPvCBP/zhD83QjRs3onzKU57C0L/9278VTUJSWKHR9Nvf/pZkiUJQP+ABDxC/K1asCEvgGfzYxz72xBNPNFXNfaOC5Wtf+5oUoTUsEWWnnnqq6ElMduQRj3iESQDvCmQE47777vvCF75wr7328phNyVUCsty///u/33TTTaGrbKrDIa68mzVXXXXVwoULjedf/dVflU2TwJLMgQceaGCOO+64zBgme7LIrf/yL/9SqjeE/I7gU5/6FI9res1rXiMnJsttt932kpe8JFgaHqjJxRdddFEQhPCzzjqLu8WBaODZ5JVVX/SiF5XqnvnMZzbP5aQnLQTCrFmzRmbH684VSTMJYPk5/PDDdZ8xIqNC2XpypXGo8QdPIncGsLJswpXj3+jC+PDwcBKIPq3MgjGc3OTuCha88MEVLGFDI3PWUydkCo8mwrXCR2tJkJSQ4UqAKxjjjqYkC4IgDoLANN9DnVhG3NwamNYZo6Sme2Rk5Mtf/vLHPvYxrglZadDy5csF0SGHHJIsdWNrNWMjD/zbv/2bmfikJz3pta997W677SYwrVqC2pIlY9xyyy3wc+bMEfuQKcFCdPbZZ//Xf/2XQkUO+dnPfhY9QQBj/gKUHJas1atXSywf/ehHJQplybOe9SyUJ5100nOe85wFCxa88Y1v/Lu/+zvB+P73v198hXy2felLX7IS3nXXXS9/+csjQb373e+WWwz5O97xjoc97GFpCaDRm5q+yHJr164tm+jS+t73vlcUl/hmeEpeFiMm789//vNmfpPUVcFTbzD4ji9mz569cuVKBHKlIXFJXt/5zndgpN2rr746eYUzoz1Sd8MNN3Du7rvvriiUNJMmgbvvvvuKK65Qe0g7D3rQg5SPv/rVr1QdRvdRj3oUAyywsqqLTIkeYwh35yzEt99+uzw+OjoK84c//EHvAPfccw/e1JKAPPab3/xGwklMApHi8rElsGsvB1ush80iWOZqiRfF8+fP11v+FZ5JA45KPPsjUaBBj6avr49AnRdZDdl14cZMQoBMITB8J7TRYDHSpBlR6iqrvDELRakuJBNFJl5doxpvmNGyO5HfUnsJ7MwzJc1UvVzyTAVm9xOf+ESxtnnz5vPOO09VkFy63dvby7jstrJBgSxyv/jFLyoVsCAofSqIPvjBD373u99NFxx11FHvfOc7lRwyzwte8AIJ5xnPeAZFUgd/xYClxpYAAxTyFl7OfVPjUn7IM6ZUS/o/BfnnlxjWcIdAc/GXPkvBk1iJTI3hEmVSU27ksMRIWBhMzDItikGJXo42Cbj45ptvNnjKO17OwQuNGWuJj6XF3fbHhUC5iff/bIswSb+y6S/lZX0QkrJn5If99tsvQlivuFLIlHvLRYsWiaDovOHRbR60Ki5evJh/LVwGKXKObKDJsCl++Vc30MdFspCXo+zg3cOJxpgNZok1AIuwxUKC5YFPsSDAbmjxGmwaS8PSTX8qYIQrF3dkvaz4lbwGBgYs0y012QJccsklJKiXDzjgAB5UYlv3sJj+OsxuhYRH2xbVCCF22GoMGD13d1HBKe7ve9/7BCP/nnbaaSKaf1/84hdzh2wba6MzCmkBo1VOSsEV9TKxPIhMmf+ud72LTIvbK1/5SrzHHHOMhUvsWwyw6F30CM0//MM/GA+DitFlML73ve9pzXpZ8RD18je+8Y1Yw5udYCVnDGtVO7q/olW9PNVYjkBr1sG/LZvgdUlPsICjGxFKYkcYwjRLCwyCcBkyTgkhSczdfEcmDMrEi3qXVvewKrxpSCBNAkgXFo9hSWDYH6uxKUJdCiwBNIhLTMItu5+tAUzJy0ZbAB599NEVZo+mngnYjNcZXBV8GhQWl3aX/kou3TY/6M1W23HZpmRMYjTwodcdryIPrzpPKgiWMCnZCVf2yWx//OMfzT+iUlGKDUBOsw8sj6WSQFNzT7M1gCl5WUz9TeOqMOcju9P0RO4SCL+0JAtpOiDJuEqaaHLfmUeCwGCoW1x4AxNAcAVGOnLBn3LKKbYqpZYKrKRxVZCVx5DZ0qpdeNkoxeSqSKw8Eo1SVqrgJ39kVkub0iklO6QLfbC4e6wQeJSmNMkJ4CCoM2xLLBICuAw9NJNkg6n3yNQpxZaGgSfzMvWKp09/+tOT8Ic4ptvRWbIr0id/tJWwwbO+m9qO6hlaoVdXWLhMZ2vUQx7yENnpjjvugMEig2ER7MHCQiU5jPzL0WeeeSbgsMMOkxOw2HyzzeGyBcrS6njPZT20maZ6Z2GkU2pEB3uXXnppZUQrdqKU2RUzOyObzMtG3uuJPBWriG5+jDBxb26qYIJGGaB0UaLYVvDakiVLgiwlcM1nP/vZM844gy/e/va3W74dXASL8xCY0stPeMITnN9zmcMTBxQGxhEgRiwor7nmGpt1Zw7KHgeB9ji0O6tUcTeX2GmtYgNvPk4FaOno6gIVgrI8mIrcpInZZ00HuAixypsQCp2kAYi7mNGAiN90a5LB8xeypAwaU7gyi2lRVLiLCUqRWUWS12PSq0xiUsKUGnGxE3uUemwI493TnqkDKqJmxtaxvOeee0bVWVoTmmCapaQRumEhtqbzjgkr7gBW+SQA2MWde+65l19+OUCgNavQ229+85t2IpxFmgDkRHPcYRCM+tdBnW0OI1lyxBFH/NM//ZPNhdFlM14nQfxeagwVKvr3vOc9Ypm7X/3qVzPVabXEotVLA9mD96UdeFWTk26pZpKelvJLmHw1e4mpwwRVLtHnqiD/V4/YI7KSC4bRb37zm2msuNWjJV5aF1CxK0kT5RDnDISY72oceAv9BRdcEGLrVjaueJQE9DDl4/3EJz6hybmg+i9lAhQezvhTSLOp0fRnvLfIGBUvpH16RHE8ghMfQDYlvqQh0xUTNgl2xhh49PV80bnDbMueo2mIrN/AkTECjqa8A/IKgjA17jAVq4Km7GyyBxA2VJCTP+7QhyQNTQZZEDn68ugk3ol44JFZfB2E/+QnP7F6KDkFi92wIy4Ba89t52pWetX/kY98RP9DrFBFkxJS184AnXHa69WBLawgtbd2Nm9Ns6Bh+eUvf2kH7xjavuPZz362ZfCpT32q+S51qAokHDThx1J+BeNdwX//93/HCUmQMQ+NU4HXv/71DvwkNIf3jqKS0Rr713/914pxSc8qSt1b3/pWtU0lGkql4NZeDiLjaUf0la98xVrkwOzkk09OZmUQJ9rd65juwasHaLUoY3GAYAmSBPAmy1SA7EwQS7XqNhctzlFDERq+UMxdeOGFDhlUZt53oHdgL1nLyyo/A1MR1aydEO8BUDa/hZDxn//85/OylcNrRktCshsAlsi83j84UREH0t0k35YE4069zMowlL8YlGMVSJhYuxPwaGlyF8WQpHvEK4Q9xgXZkFpdu7WGNdsI64+BdMdCrHmdKQgSxhVkwRUSot5IfCCTIIwPG9zD4DJjoKSF2ZAIgjEJYPghHvEC2BCUmkJXqE44gBZexuAY8O///u+dM5lN7BbL9GHwrsws+9znPqc4kxxKWV5gm6p8qsAwr2OVx+XRi5+Wu2Ts0RNrumNJFvsowJSMJIM3TAfYHJk3DurULS996UtbvmcLC9UMimWvq3WeTCq8k/TSUoFl2fzP//xPouQ6MDchk1vylCM12l9YSzlBha76lhW5PuTLFcKZYcywIEuq8qSams1BYNJbsSsnHq29bN55zcHLpR/BfMdKEy3x9Lk8OmPj6MSHpzTxnfm1yzkVjM4eXSkkAR6RAZnk8DesaqjdIXwCw7mqC1fycqIdoEfZLA4CxYoLRgEnF4mJJA5AInbpJuO5uKXxvOlCb3cjcUVUeSS5sj+AbOHl0KRjAZR3fWB0eQhn4xSU1EijxjboaRLXRl7HxFcphDti2I2EuZIs8Eks9Iw0rqB0bGaq0ktdbGRMajAMvAGQH+ElK0Iw0g5I9tBueFIXsQgwyrzilIUEIrPesEqm1k3GGwC9Q0kgk7CHPTB0sdYjG1DqbGgR6ZldA1O/Y6hcZMUpfhIR94//+I/INLFMgZGXycUChtplKAOs9dS4hICaROBbDPmooiJEWcG9rMMifrFYc972trdZRbnDG3uR0pC0GAHJ0hSl1Oktde48C3P66afLCZKDvQmX0RX75uANyQFbJ8VmdoqDvCEkXOB/4Qtf4F/Ofe5zn0svgT/4wQ8IpyIGzEJn+0OaizRcH/jAB7SyhNL0RlhonCr9bR3LmHMKhFkwALHMMlfamoAB4NCYiZAGhn1sajGwDR6iqGBissDwkc67OBE+bdAxseae6sh3eRRrRoVqbsJICF6PtCdxM4ASkjoX14ciQIgi05CU6sJUTkxRtHAlOc0JJ2kSaO1lHVACG9uwhladLL+dSP4ElFbWCtNW3hDCgTc2Lq7MpZJAxmkFINOT3JjpJC3qMCzh+iQOencZhgepCPkI6I0yRpir7klAoJXNhJvOiNFIIxxn1BGwJ4I0hLjbzeOl10z1aKjCSCMn7eJVlcZI0BhcPO4oTdZyzmW1wJLSWgCV2PZImcBkOrlx6ZvDBF5ovoRqXM4BGMogVbMJJW3ZLAgoQ2VlT0bE4Ljzr4m5TUk9rdMixyFgtP5kl+x01Alssw963OMeV5GGOK6tpjS+npEHbCgId+aHXc9lJ0NoOqsKpIXwBRV4wyTsYHjh4iMYfrD3kT1CrKawp25Wo5QMfLz3a3ZjiWkdy6SIhRwTltHB9YlpBggVJi7+xY6A6YTwO2ta8uoGAq0hjQSKjG4ShxytmhAHoDUJgjHIkiaQQU+4eRm+QxbDgx1xkAESDoy7sQmfYtfKqmhKRR7ThgCQpbUpJ4EWXsYgWxlM/CKrLE5ZbItlqGUlceHMRY4WknKT+DXyvneXWIQwXq2qUV5TgdEnmeB1mYbXXnutdGGKOF93t1TaaPG4u52V5KjqcmGBUXua+Gaor17MXxu8yMhk8gU5VlHzIDrJLwhYaBaTLNDMa93JDusdAt/WSBpYXDB2d+QYA5Gr7pRbYGQeJTNjSt7ly5frgkgKJF4LLzN0U/cp0uQNYaWsal1jKBhoYrFTAvx8Gl8KmGgf+tCHiOYCyzFNXGwWwziWZH0aFOFTPrLGR38ofTIQm3U9DAKPkJoEoDtb3/KWt3Ax7/vkEEYusoNAXJ7Jwbsc83sJQlREn1F3/slmK8HLXvaykB+KSOA1wx+M5d0u2aiIFelO5MrCGVshNjvyqle9yniUvAFLjAcffDBiMeG4pkLQOmcjiomQk6U0twKHQ0NuWhMTVveih+G+lBZIxI322rT6sXs9QQWewIrMYEcQUz600AhwD11hgMnOcnJIQBwCg5J2lIEJCXGHD9d7DJbQHq2pOh5zkOIx76ZXaKnQB0GLjMEOa3F8qiI8qQyPYxBlF198McCCbiYGYMNqsggfh1XuIZfp4l1omBD2V36EowOQpoIlvixXGHfVlVed/unT582fy23C247E+0DEmsb9j8StQd9mS+YozlSTt0zMxYv3mGirt7sOOeTBhx/x8JmN937OArds3oyMBGW4g395QDYQrXoXJ1DyiZ/AeMOQA2wJ8SZbfuMpLIp0YknAoi9+IyRgG6rq0cBCWcUsDwwWue64446TYxUegdx+J2Xyi4vJcr6+nWcbZADoiycvLs3HFCU1+xGDxZBKAwZvCjsk3Ma6NYo9kpBCslUgdnZ07r1suYwhiVx19W+f8cxn1iuPbQXT8SeccNmv67/eOfuzZ++3737dXV1vfOOpmzbV35i89S1vQRmSDY8XIgY1DItIVMnEFlxuES6G0wZKxkgzzHpxk30BWBJimy4LKftgfBxttUiD9dRWLiO95AW3iOXkDCA6JhITDxNSDGAgG47awVmahIZWlEEGMJ1TiMeAE/DI1qOOPPIpJ564997LOzumzZg+ff/9V9Ym2pbvtfxNp556sgPudk8W+Nrui3dfuc/KibGJox9zzJ6f2nNocGjZir17errba+3PevazF+y221ca7555kPZUEX2xQEV3THNAXKTqQFKGbe4w8CyPXgh8j/AhhMDAQxpgxB5DS0oATOZlIyM8femO00RQfiranWY52PXotNfbewW/j+bVDFYM74xFru/JLCYxDUtNllMsanjIMDRbt876iTa+O/zwh92vfgZWHwTr1Jizjr5+gX3wgx582IMPC5bxNhX9+PjY6GB//+JFC/ZY8shap0+ejeJora22374r7//qAx//xCe++z3v/tIXt3/LIlE42FNamOmx4ZIfhLmhVVDJddZbv9URszquPPcFHmt92S+001QJ0xmANdbbRTkH3hGgYzJClB/N/t3KyP2Vi08DQ7FdAzpjHrNeIeVLXxjVTGwTrP5SGEw4zl2yU3VJMg4H6Paaw6vMiopJHvv7B7hgYNDRzOjYxMj4hOw8Oj4xMjw2qjwcGhsfGhsdGR0aHfNpYQP0BGM0xi1iYnesr6//zjvvEhA//NEPjz3uWGUJt9LIHtVIdJs7KiMNz1QxxMWqiKgxpHInc3hbfo1IgsvbFo6KHnFdeq/sY+tYRhEiuCmiMu7wMetLgNwwPXxtucObmEDmI8YKZnuT30A49xodnTlzemdtom/9HffcevPg+g2+XJy/dOnsPRZP9HSNjdcXQnlDzE7UJDEJ2DSvSWHO39v8094+Y4YPRDv6BvqX7b1MoenVdaioWBWWpPYAotLntRgG3d9peDYYCMGSoioqUnhrL1tSZXfhoB4wtvwocuN4105agMtKwjmlEydR+DWd33dYxyWHbLIHsQzarUgmvrm37c6mNOJ755/vDcCjjznmSSc8edb07rH+zb+64Afnfe6cNVf8Zqy3z5cZu6/Y87jnPP2oE58wOO7Ti4n5S/bqnO7EqmPLwOD46MTsmdOlY4/+caAtDXZM6+we7/JlZ8/0nkZTXZU6xysIk4w9ChWpIw1oCTTbiczbr3jNKJ/Y8pR7lpZCAtnCy6Tzr4lQbpnsGlyWZvWNjVMpMazhWd3g+mjSmcCbw40z8Zud3cRxePOA33TzTWb30r2XidCRvv6Lv/LlL3/oQ3dfu7qj00uA9pGhiZ4NHZvXrd5w46IZs6f7NUn7UGeta+jWdXeuvu7anq6O+TNn3HP7rQOD7fsecMReKw7s7JpZa6vPp8ZpiFjfaqxtkcuDGjR3j2VHEg4Lm+1EIFMrWlSHPkAQ6S1pUk4CLbyszbIrwZsLFSnkSggIBLjUoZUTEcO786y5Fuxxt56gMRWQAVxkagJAuuMisKere87sOV3dPQLy2ssvv+iLX7z1utUzZkxbsmhBT1utb3DL3gcs695txi133LTHyPxFHeNtfes2D66/5tJL16697Ygjj5g7r7Z2zZ2/uOCXt19386NOeM7CpStnz5zPu6K61jbRKErorFcLodpdAmRbGBb4OkXj9zy6EEaWGP3FopsABC49wh407h5dABkGWeID2MHL9NU9UauZ/o6yQorH5CFCkYhMaeHNmLNtKcIba79JV2b4HsfyaN3QJD/4AigWYjPU2zMz1JbEnCUtFFmLVNBWy6c+7amPfszRM+bM7mxrv+H3f1y75sauifYFM+dOjNbu3LRx1uL5tN4zONy+YVPPxHhteLhr04b+8YndOib2PfABe86eN63W3bP3AcP3u2PDhvVjmzdNF2JUSNIqs4zkRh/odSkbfPjAX07ipY6c9WoGffGWhL90BIdl076cfx3h+2bBAYMue4+lL3KpVZq0cI4yTmUlMZrukomzgcDHfQcvB4pbpV2OLukqsMF0GOSYhgWqOmc6kozMYAsvMxge42HJdulDzFOmOzWOg+OQhiZq6rm2ffP8EmRidGho2YH3P+ioI+/xZdeWLWtvuWWwY6Jr7qy72jqG1vfxS9foxNjIcK1v06b+geH+kdFpmwfv3Dg0MLzpjrvnjHd3z5w5tGmzELYiulkKrZag8IV+hWECxYXA3WQKY9zJ16l8BJidN9xwA8BHIFysmxKpbipCkiyEk8wbTtCk2XJbEGQ7eDnDFqfLo7lj0FIiIPCQNkvGzVFcTBB3j7xm9XOaxacwIjrGTBNGK6F4CQnuaGy9RI1SXhKZOX1Wd0/XQUcecdARh15+0QVfeP8H+q9fPX3uTBuA3vGO/l7vbwzu+Oyh4ZH20d7eLbM6pve11353282b7uydNt7eVevs9j7sIc5DOushXJuwg5k313oxR9DRIkWA2cOGMINHYr5GB406g6VsNMzLXoN1VplMiJGwWY/W4A16oyVZo3GPpJrsgB3ElQ1gXnAy6XSCaHJL3RKFIuSEE05gGTXkouFiw2iDb96JArNSJhHsfKNJEe0VumSSWlhm0uAlfOGCha951Wuef/LJ3bOm19pHv/+Fc89917t7/W5p3uxFhx5c23tZ78iYF1DdHcMd08cmaiPjfSMz27rn1mZMbBps6xvuqU0baZvY52EPO/qk5y3aZ18eGhrqZ39Hrf1nP/+FEz5RZk/klf6KFSt8P/fhD3+Yy8QQ28Jl7mbeqlWrHENG3CReH5VVp512mrj2NcwrXvEKcR2t+qIL6D2KoZgr5WY9OrtDLGf/A8DJUKmgeQpIQ5zLrGThLBmNGjrq24qBAZESpggiF0djSXqAgRFTgVFL9PVvbpsYE4cj/SO9t90zsL53Wvf00Zr3eCOzaz0d3T39o2O9Y5sV1V1tHT2DPd3j3UO1rtnt03umj46NDHbPn73PoYfNu9+e1iCxI1PYeWhz1MsYvXCP6APIYy6qhY572KmzXCacm4ORH0MIm3XTnAiz446dHPgSWcKTeTno8As62VZG526HPi4uk4YsbqEgJeqGwxTfjaGUxfDCyMVyGad7VG4jBmAUSvbl+m8OHvTAg/bca6mql3uUHTPmzpm359L99tunrbNrw9DgbrvvNT5a2zI43DHhW4C+rrGJ2Z1ds8anzWhr7xoeqg1smjWre7+HH7zfISs7utsd47U3kjGv3bJ2rRVJTKSFAOuETZ3uSK9sY+Hy5cs5l+/i0C6IWSg8xa/OWtt5OSx3x2L9lxg53QIWiSi4Wt534eVwh1lvYXWUZZZZl10ApxZezjOllGs8bLgt3PI1U7BzokcbdKepihC/Hgh6jGaxzbf15PgTjn/7296+1157SrmjbRPTurqPOfGEhxx5+NzdFvRu2rJp46aB9mk/uuKa69eube/obqvN6K5NzB6ZNnu0q2e0rWN443Btw/jctpmLO7u6h2tjAx3tM9vVyh3tA71Dp686473vfY98nkbSa1vhw0a2OS3woQELdUQtYRYmGQCB8wN/ZMNZR/gBMvorh0iGEqBi41vf+pZXkZFkSvYS3oWXeUpUEip/hQ4BAoAvpSQc9KESFzz7DBKAfcELgHRBBo1DzkZ2hrJXbvOOc97ipfN33xPP3CVty/yefWCod2isf8vm3qGB9o5ZXRO1GV3t00e6ukfH23qGuhfO6Jg1cPXay/qv6DjsiAUz7DxJqm8CKZkAhWtoL1XTrmsMDrzH8grK6Gadf1swhdkoxVPAkmEiSwklPJmXucDkMuwkOn6jSdoC+DMUKUIgOCgw71RFikpzRxQb3hxbPbHyYpHEHZkTIheLEbnCpDMnmGg++tGov9BgUU3Ges8a46HCm9HT9ZBDDtrcv+VKrw7GO6eNTe9q75xmfzfc69Ru/pJuvr79rrvv2bRuYLBPnV3Pyo1ibmLcq8uF3hUxzKm/rVZaDtAX2VlaWNH4azGhLghY5VFfVP3eQiQXOU6U5HpdkEngnVBKHZnKZWfrZ2VaNAa63p1dX3KQsa3Q5ZlcnOIjcDZYrorMcjaYXAJHTR3vDLM/umSQfBNkPCK+yHGN+d94fYtFrSrn1nV3XXb1779zwQ8/terzn/j4Oas+ds4XPnnmdz77kbM//JI3vPJBr37pAWd95lU33XT5mMO5iXrBc/vtt735zacefczRcSaXNgRQF1pclUct+lu0bwXtTfIgVBQ2R7Hyo3ybEWyTxXJ4gXqyXDG7IYMzHrXyS1Cm1xCUmBKOieZeIsEwwiFk0hWtjS1c7N7q0blk0cI9Fi0cXrnPuv3XmRAzunvmdE+Mbrnt4kuur+ezzk7l+MjwoDwhFUkXZsLw8EjflnqBxaQUW1Gdj2F2koUxFcZKeilZAo57ytzakZbYkggB0coJU8OMM+9kBkEnZh27aOVld8aFmxKTQsKD+YhAmLgsHepQ53+alBm+vvW5alTQSWxM+Wvbvf7Q+L+Fgcax8YF1d1z/m0su+frqtVd1zepcuHD/Y445eeX9jzJqQ4Ojfk7/y0t/sXbtLep6a2+6L4Qz46KLLvJuUNQ/+clPdkYasx6ZPZcDZftAgeknb+qr5LV6++s68ozTIqlStglpilQFAi2qFFtt96IL2wKTyp1dXKwSUmBgk6a9K0Mpk9qtwDCOPhjD4FyCNU7mYoMfAhnkJUupcvny5U4ztBokWU+TqJEBqZDlY8yCt/W9nkbq/wwPbLzj2h+v+fnZ3z/n9e975zHvf+9Rn/ro31xx2VdGx+zoxvq29G/ZMoCQELFsUCOiQ2bAKh8FHAM+s5O/2hen+CVjmuTDSTZnv8hRirSkxFIvAya/chiDLB8DIDfLjyBITIqFSRiAMTIGfGQbgLF0MaikrMDa6s31dFJPYpt7N9y+ds2W9XcunD970YK5tbbhwb57br3lut4N65QPtTYvv+v/1DkaKSjuITNgK60BZkzYAxlZQtkQQDNjXXejO2aAkQtpgYxdT8su7Dov08Qar8EFsnkR35yBff/hSNsYxhLsZNnu2dZDk3WW+0wovy5mgXkneAW1DwecfCtIRDfYSk2CT15YpmPx5+iarOTYerlQ92+9dpCbHFC0jQz3bV5/58a7169d84e77r6lb3yLkq1tfOC6kWuW7fWg+fN3r3XUhvoGv/2db1+/evXJL3iBJctrae8i1AMmkBQRURxuCqXcZPMtJJWefhXgnMBBWLyo1BdVv+2Yv/4hh1irFd1+GGBjpddYQo57DEw+BrBrL6MzsDKDK3jYpFJxmJ2yYGQiv2xIDIsl3DPPPFONIWExWvf4l5flMscjLm61Fzj22GNTbEyLFJJAPTHXT4AaB5nj49dd/dvzvvqlu269cY8Fc//w+2uuuPKy9o5xq+f0mbP2PbBjxYrrlu71wBlzdh8eGeadn/z4R16K8zJ7nMG6K4GktdLLoYh2fwXJeuNsyw8+8vMirTfccANexYPIsO3iZcnEpcnI2V6mqS2BXXs5BycG3GNgPAYm5QbeIzzY2JgEgFhVTLQyt8SUzEmHBUFFYENyPUG4HLDVP4DxKe0Na7722VWXnPfdrmndl4+M3r3+rtFxf/igXrWMDwy1DXf1TJsz4euielZp65rW0bNt+ksLYWECITnvWhms1T3SQjYlC7NDSDZVKBNfApN5mQsswb7CJ9orOzPIQaU3wT4NcL5n62n6kBU+9SfZ/DLQyYB5ZGVQKpRqwMbfLwNNVYdzVhtRkwT++CeZgtoP0iUlXYoxSIIGUN/FtU2M33LT6nW3rV6ydPbGzYNr77qjrX2iq3tabWK0fax9uN+SOLbboqXzFi4aqP/FnTFDc/XV1zhIY4+9iW9qmaESkAp2FD7ZEz96Ee4TKrlYmCs5JqNu1TaZl0lXLShc9Dxe2QlGc8fZ5ooVKxwkxqjGXR5QZthxcJD+0QUfTaFXgOBy2fX5VKc0xg7QqxnZ/LjjjgsWTil5G8Q1mWt0eLB30ybvrhYv3n3D5pt87CJax8aGO9rGR8baB0YmNmzZ0jfUPzg8ZPOspr7ttjvqX4Q3XqSKDEtIvpkkM6aOewCByUfdj8F2V06UFQWaNK/kLTtVwpN5mSCTXf6KScSPsi2kpCw9ka4bqc8AwMvCHGTMkSEOTWEQo9FYFcmxaJRGYMGoFPVLTafSQWBo0QRvnbi+CtoCji5Zts+Rj30qcOG11y1duabTyZAEMT4ybkmcaFuwZA/A8NBgx7SZP/nxT3956aWOPqkzL0MUg9ngAuiXjogJ3YxWXTDYOca49IXlCEQJdyPDyJyoMTRZt3HFFKybWQxA3ezGNZmXibYH8YEAK73JFwj2DtZWyV7F7jTL6XhodfdJjq+QxIskIy2oKHg5gjo0CagzzjjDDpUdpkj0KppMC3t/YxDnSjwePUFTX/fqRAK5fnecdMADDz3g4MMmxtuOmxirL4eNkqP+L0XxuNLKXtzHkhsvvPA83MxmrV/ZO6dNmf5MseM0icsmSOKy1ZJGuIm/1Bg2BzoupfCpT168rHB26NRNZ5cvX55O1Nlzzz3X/sXnwj4iNAaCPWI/OlXeW3s5ZdHtBMe46b8zYiFAEAz3sQYmZRkANZy6R0JwxMyPDa+Eo+pUhh1SU7IAwiz9dHk0nDYmyHh8dNSBWb10U/E2ltLGssMyO/722lVXXfmtb33T8bE4OOGEp8xbsOCiiy8+/7vn24pgvP22O0g49U1v9JmdjMEFqQug3BQlzqq4VVjEPi26XKYFlISo3nRTgaTvjUHfGq2CRl/cVSyOqkMFlpZXCy/Tx61xWsYO+R4nZPCHJnAAvM8yg8HL8WrSCrlixQqxbBgYZ9JxnGxuU86nmlKCZYRDNRkASCrMVoFMKQNiUode8MaNBPb1dPfMmz8PGXPk3GtXX7f/ygNmTJ8xf/acob7+G9dc37txU+/mXqlsjz2WTOtUVDjUr18M5lx+YYMAZBUM83xk4lEXyIRBiYBzRTql+sJINrMKsQzDp67otdCWTlnLeMQ8JvjQGDmzgbTtV8OGHW4skCUUmESb+1Sa+/EtPo87wkdtlZM6SFHzOovgUB/0WcTZav8Sg+wreRYwmk0ylzB36oYyL/PR74ElQa2Rmk1tg0E+G1yMdgGc/DmARWN5dPgAYxikb44jTQ+d0zPSo9DziZNRZ6rpT5QDgNhJ6T88XWEV1whAMtls00RaXWXjHG7NmjUKainbVwx+Y0CFn+3bLiD22kEdhcy0M5a4KBclogoxURyCfQeH7uzLWmyMdpG1fUAa8ctrgSEIwFZOpN7ohVZcpr/+sBIBUS6m6B4AZQrUSeaiDzlhbshPLUFMF3ejNORgrTyVcgLwvRaAGVSwyhVCODeAuguLPTFi0lJI0sPoUcQW+hgJ3QmMLiAgEN6V7FgMPAvdwzPZBNgxsLe1kEKrpwoDp9v/qO3MMinCgJtNkdd41mAKWPNIqadvcaqr2/K1+skKoyk0EBvy4xEciuR0oWdKkmPeMaNCKcOYAYSHNLFjauPSvRAIYCHvMNWqpUC0/TX8qQhgmrrKcdIdv45Jr5kQYpNqd+WpVpNbROMVyHpXlsxhOb20BBy6drhrqFxMJJQTjY99R4xhZIzkdPxmH5GMRjhgvF4lcEFQ6rnM5XVfSYkGvcvqX/nkLrgMmNzCTbiCkqf8Wi+1AxyA2D0jsIk3JGVTMxxBwxiAVn9hxNKXJgFsW2LmNfMmJiMvMS0BYSedlsLBrWPZ9IzIr2QMmnSbdJycBXCPIAIDXAItmipGYAkC95BQIchHBOEOmCAm05UEgY+mkrhCQGNgwmZwYhKAZO3OPEh4UqYQxJCJL5WCp5oxiBbIp5xyilmgCiY0vSbl1Q+NGn9sMzZRoRKL5VgmMaNVFN7ymQEmsl+8pDWkCUlpxDT3KcEkX4iRFqabgz6gd5Yt9ARIpT+TP6Zey6DvVKW1xAhbP0SUH3y2oIPVeqCQGyzskeu8cpPKzD+/H7HoeWdooSNEa0rGynXIChkNEEXlMmjcWiI5KDKGXBm/94tWlHF5tHOLU3xndXxtEnz1q1+1aFAZ3+LzlLchdJrgzjGwNGeM8C8WpT4JClWDXbW48ez8zwAQ4tM/kzRpcoRgArZ4GN0wOO7OKh3GIshf7zh9tTinkBIIIY5xDDZ225n40pCFiuVS7CTw1oKhlAsWoYkJ5ghnPlUJZBML4oIBlHhciE0fd3GticyY9Shl/CROICVQETSirCUlFgSuBBKmNwUGEBFTIoMYhklgLOzM+ZqUQRYCDXkQCDg9QhMsASfLzoDWeblCrbd2wEaPSjWpgjQJnG/ZH4tiq7aPSCzHcrq1C4HZhMVSLsMk/c4AXdJnf6eXIjNAZ9TOkILOn9pr5jJyfntjBRanUWKHv/AKXvOJBOuwg5Fm3goGoxNwp8kSlIM3e/Hwnc7a5Xrxpo/yW2wLWWjgOcEpndSH1/KrqtHrECs1OXrM9X+rLrIqFx0lxmNizHoHoaWVDje8dUUfNO6Kp9i/qQpKOcqj+OWPHGfDoikzBltdrOdZHdBbpwcwUqoZWgpJ2Jl6HKIzpsG9dSapT4yKPtuqOarVyh2VLwUkvcgYKM367J2B8R62nD0+EZGFQymypCwxNkoli7KV09POALZnhtJ3xOVj2QdwmUzQeBQ+AE3BAoCBF8XN0zBpACyIEAhTMAagid2mggxTURfs7qZXVh3JBR9CGg6pry4wVARBkgVGE+HoXWBXEsRj5V5SRlMw6mxKgI89UYW3dcawu/c3bYQVfrqTR3oyUCE08AoJAVgeiis2lBl6os4XzqaVJPDCF74whQCCV5KhxYeqXgKZ/sLKEZrNNALTNn3h0ZZdcrCJTyE2Izay+QgIq6RL22WUVjM7fiuwRd/EpzH7YuVUHuiL9dMXOYCQQ6M9iHs8orevUVybH6ko/2pfYqYEUF+5hICCn3emxL8TouizRtnDr2qpaM4YqbflzoIEw+B8FZlpGx8mlNpSRSA9RmzGo+2Zd7ihQmjznX65l7M+/usDpcxdwv5OssonLSfNUY9pl4zy4VR3JeajyFcVMp3EFBEdKzHZVALBpc8owaZ/mFXSBMxKBNHzSA7NwkNIqA6uEm6WGa3ySUhGQHIIhwmkO3xkpIBDb8CllrQngEhTYVJFdfCGompTSikbrAO51Jb4qcOmoWXQC0ARZMEVleoz77DNdKP9r//6r95qO/P0pYsX+BZuO2ZRb4lXSkemosvwWEykI3nAVFCGl91rabmuBl58Ba93aT6cjVo+7Hf6LqswRkJTjYgn9jhZpE515MspQVbpqb5YM0WxSkPJgVKqwa60t2D6OJg639r6+Yk0rSApo5uoqriQTnHLP1VX0T3JI79I2TrMy/rjaiaOsfRuxT7KHsyWx0GMDgQlXuWajrlgIlLSic3SkiuA5LXToyjYo8lIqzocByvgHIqqvQykIOVcDmr5p1EdnXMf9uyLckv+SXuEsILVR60tY3kHL+tYsOEXUPEYlk39zk1x8sJo1gtqHZZ8miXQFROQFxTaGJ2BRQ4hQYnCAE3YwyqPaERAcDULLDHBa7AJtBpbWgkklhdcBCKGV2vrLCPRw4ABIkP3MVKEhVKYIMDo0oTF3AKzx4mYMUDg0kR+aUkdjrbyTpNS3ypsATE7/leXCtc8UmZQpuw1zWWe0047rdQqY5iwNGa9zFCVgAluAuqY1OFDf3WFMD/ppJMa/dp6M50dqBMrHt1bXppcFkx/9UKH9Z9wvfAhixxFb/wNLhIVD9FHBYlH2r1cN6hKLC952eMrJEZiyV+7pzGMxItGdcRUlhhRlDruXrl2iOXwBUGGjqHiq/TOVGA+wkUTIUx36SSDSl4WkB8YMEDAupIGrwqHXwBCKWi0epTvTHBNSTwJQLtWnXcBYl9a0gtYV4kJmHk2NRxn88LpkGlDAuaBS5PesUe8By8jAyjvLbysGWlMK4YqNj2G9FJE6kOPmJukKjZV5otHfrFFTF6mVzagZpy4YChHRAYvIyLNpTGuwIBTZmIwkiAPcJMsAW/ARJx04ZTKPaUB4KkWGSyXrLLJWPrpkR5J0+ZZ4gEstwBKhrSw1ngo28nJBROvyZpO38q7zfLt/8ZpupllSH0TJhCUBy6ZJICWd2dyVjAWO/jXw+3iGpFbYSGKO0zG+DrJkRhbvYyw5TUkeSZnJprm2Uk+tV12OhHCy5FIdeJLtuFZ3WZMsHi9Yvgj56LMv9rnTM6U5U2n+OIpMwYPoHcxG4zFhp7HWeLjAmkH3ocDXEQ+ReXlQFhf0p4AWsdydkwkEsHcxOwMiC5FayXECHFFE62AIHAPyVrD0CCDN8Ca4kqNeHk2nIvGVcpMsfzCoa5oJYTwCC4ScGkKMxBEU5onEsFxBXvckYU6BESFtTDkpKKgNGYsLHnBu/AyCjzEGR/bTY+hLKWIGhVMZIA0HaCrSiVzAqVHXOwzZw21yWFJVBt5hybqQ2DJK1Lss/2u3MS3ECGgRSiZmPHlDZmSpgNfkSv/mN3Sd5hUmgcmVt7wLlFZid1sQ0mUIx54xoT3g5e/lJKmFCcGxj2MN1Njj2Zf5yW6KKZdmZFK9c6pXmSnWA9SQh0gpXJxUGYM1pBlfOJb/B04Gw+67RSCBJvyMmOw1Sc8giJZZF7FBkoDVvn1zilN/yWNirPUoUqLsDNi2YlHVPQmO4GQLgRWM3+nIGpbqks5cRIfGSBEuePi3ElO8dN+okyLfKwIl228LK0ITy3bvVDylzBSj+Gv0uiggWlGJrs+JJwAUbEKYQSTH9NWWMHEBAylwQIW3RW8DodJuIIxzIgwRJ+8pd7QCENmXMGVNCWQTQGg50QEISRbg0UgmqMhsxQS8Pap0dwWGJ0J6R5J2RlZBa+3wtyBVvKGHD8zN1Xj4C1ZRIGv9i33ZqUPdrGUfaBUGW6iJH0J2MWtWrUqixbjSrWT5TA15Xg0nZW9hsTBtN2meV3pjrF35KamMiH8VEDGC0XI5BbfQViZzXLndpE9gt0OWyaUiNRz+pgaSyO3jyqeuHSyzBiWWgNV+VIgRdih2uNjrGSMbcK2/1smNZeTkTVsCrPSMq8I9HA7z44QD7oCx1+2whiTNyTLFT6jFvg7staffDTPWciMgSUhCTJjGGYFjO5bM7yQLSU7Ecz3flHaspwoNA4xuCikMQ97Sk5g17GcfvlTgNCdE5mosCAMDcmiDBCZITCVe9nt7AAa+GiCJMRCBICPezTlI0CwJ9Jj5QqucGI2xbB51BGuBMQdcQBBGbzJlcC94WW6GW076+BNIKRutar4itIlkS0Bk1fJ4dA9vUmaUz3pxZGeptiAUGStFuZKWrPbF3vq65YCWyJNWX+Q28G/pXuXHyZIFIRLO0oOv4g2h/ycydFjZXhC0V/cyzm8MpfU5soe+pGEHOfOd+G+bKoADka4Ul2ReK90fQ4pw3K3lzLhZUJMFy9KXHZoirxJvMywVBpGGiG/vQgVmtLyVAoIpDvJdkzWA6mco9H7JRIvp8ySa9c1RlCX86Lkp89VYhIOPK0tFROIwAREXxexbeo1x4ImyAq+wVHXay7HdIZJ1QBKKyzZmqkzMMqVlJY0FQBNpReGMzRKUJrEcqXOKyVMKZYJctLmNVpFE0EWbkfXpcSALQh+a2bNxOtDdi+l7PrtU/1qTsHgYLf8Qs7Rl+nvmNQSCojDHX0Qjx7j963NKmDQEG5Ns+ibtn5ZpPP+kzgWK4bFWqcI8YeC7UpsXhzSK2xlLbr0xRsD3+I7O6QCVywM8BZqm2+TLPwIY7eiqHemoUh3nG8C6Z2XmZKM7TulvNzsnLR5Sl4WFCsaV7K1BEo14sVKbZo7suJW9Pxuy2dFVvc4Hikl6DYMMieu9jjKjGiF8S6jFAvvMTofsLN/F9hrX8uaKWLUzWJwCDG6fKR2ZIkCLlyPjBzICy+80DGx89Vjjz02D4ZY7sVHsMed311gf5Da6avM4HO1zFQlZUt4F15mjfmIMzvWUgpkVDNlq9Aw5orQsF6vYgqHm4y/kQAjo0VOtOZgFxRgAI1gzkLJBpQxN3G5sMC7wjCPkCEKMVGUps2EaDKjNRFOVMxutoV5KElwj86aGR7DzrCk7FfAWl2JB/OAK3QlPoDJvKwPVnBlaYWnfExNFDg/zCbWm4a2//pTOV9G5kWc4zcfnCkS7FNUqTKDmLJw+3MksV8g2aLnAwG/jRH+1jqFsJTiZzO+GFKkSwWGIVxp/PxwV9LgTYukpYk9YZvXEY4HSDDHnagpV2zKLVzOIvzaXR4wPI44jIo55Es+gS9lIctByk7tDKDIwEiDtAvzs846y70k3qmX6UYnKKZSaaVEvQ1GgCLflU1pdI4HGvWWTZ3THKdCOmZgzGipM7jkVqHHAEPF9Sj5PcaAR1wpHCDR4zW64tFfK4iohKdC5sErgTpKVaJRJIC4xm7NhYZtHlm+Zs0avNGFUnjC2QtACVOHFxl3x1xMFkBrLxsTlrE4wqFk2BkclO5ihPuQpRHRxFMSiKgpKalAyZvwMTClfBgsLHHSFKduDAuvISMnVLgTbmxCMkAoxRKKDK9UAxCtllNeUH6hh0kLwS5IZlAX2aPSGjSEB2/zKxLaMSofGRnEed++kiQKgNrK21JNSdYSlpj0JxxdEpBmkMtxRoMSveiGp5Q7ysUaC2dpRQnPelEGk3FayjdgMWbo08UIOMUIkZBagjKGpJRAnbnbUniSpYVhWLOLKBI0FeGtvZxC7wP+LB6Y6q7kz6Ls/1sh93n53hj6+7x8n5fvDQ/cGzrui+V7w8v/AwEFJSpUj/MpAAAAAElFTkSuQmCC" alt="扫码测评" style="width:44px;height:44px;display:block;margin:0 auto 2px;border-radius:3px">
+  <div style="font-size:10px;color:#999">© 组织生命力实验室 · 基于 Schwartz 普世价值观理论</div>
+</div>
+
+<script>
+/* ============ 题库：9 价值 × 2 题（含反向题测谎） ============ */
+const QUIZ=[
+ {v:'achievement', t:'我渴望在团队里拿到可衡量的成果、业绩或头衔。', r:false},
+ {v:'achievement', t:'相比“赢”，我更在意别给自己太大压力。', r:true},
+ {v:'conservation', t:'我重视沿用被验证过的流程，不喜欢反复折腾。', r:false},
+ {v:'conservation', t:'我常主动推翻旧方法、探索新路子。', r:true},
+ {v:'caring', t:'看到同事状态不对，我会主动关心并搭把手。', r:false},
+ {v:'caring', t:'工作就是工作，我不愿掺太多私人情绪。', r:true},
+ {v:'freedom', t:'我需要自己安排节奏和方式的自由度，否则很难受。', r:false},
+ {v:'freedom', t:'我更愿意按上级定好的规矩一步步走。', r:true},
+ {v:'respect', t:'我希望专业判断被认真听取，而不是被当工具人。', r:false},
+ {v:'respect', t:'上级怎么看我，我不太往心里去。', r:true},
+ {v:'tradition', t:'我认同团队里代代相传的做事规矩与文化。', r:false},
+ {v:'tradition', t:'老规矩大多该被打破。', r:true},
+ {v:'enjoyment', t:'我看重工作里有没有乐趣和轻松的氛围。', r:false},
+ {v:'enjoyment', t:'为了结果，苦一点累一点我也能忍。', r:true},
+ {v:'stability', t:'一份可预期的、不会突然生变的岗位让我最安心。', r:false},
+ {v:'stability', t:'我受不了长期待在同一环境，渴望变化与新鲜。', r:true},
+ {v:'justice', t:'遇到不公平的事，我会站出来说话或推动修正。', r:false},
+ {v:'justice', t:'职场里差不多就行，没必要较真公不公平。', r:true}
+];
+
+const VALUE_META={
+ achievement:{cn:'成就', row:0, col:0},
+ conservation:{cn:'守成', row:0, col:1},
+ caring:{cn:'关怀', row:0, col:2},
+ freedom:{cn:'自由', row:1, col:0},
+ respect:{cn:'尊重', row:1, col:1},
+ tradition:{cn:'传统', row:1, col:2},
+ enjoyment:{cn:'享乐', row:2, col:0},
+ stability:{cn:'稳定', row:2, col:1},
+ justice:{cn:'公正', row:2, col:2}
+};
+
+/* 管理建议：用大白话 + 具体动作，面向管理者 */
+const MANAGE={
+ achievement:{lev:'怎么激励他',txt:'给他清晰、可量化的目标和截止线；事情做成后公开认可，最好能挂上他的名字。',
+   risk:'注意：别只画大饼，要给真实反馈；他怕失败，重大创新前先说清“试错也安全”，否则他会保守。'},
+ conservation:{lev:'怎么激励他',txt:'把流程和标准定清楚，别让他天天救火；要变动前先打个招呼。',
+   risk:'注意：转型或改革时他最容易抵触，提前讲清“为什么变”，别硬推。'},
+ caring:{lev:'怎么激励他',txt:'多问一句“最近怎么样”；让他带新人、搞团建这类有人味的事。',
+   risk:'注意：他容易替别人扛情绪、自己耗干；做裁员、差评这类硬决策时，安排别人先上或陪他一起。'},
+ freedom:{lev:'怎么激励他',txt:'定好目标就放手，别盯过程；允许他自己排班、排期。',
+   risk:'注意：散养可以，但底线规则（如交付时间）要白纸黑字对齐，否则容易失序。'},
+ respect:{lev:'怎么激励他',txt:'认真听他的专业意见，重要决策拉他参与，让他知道“这事儿他也有一部分话语权”。',
+   risk:'注意：他一旦觉得被当工具人，会很快走；哪怕再忙，也要回他的专业输入。'},
+ tradition:{lev:'怎么激励他',txt:'用团队文化和“咱们一直这么干”的传承感来凝聚他。',
+   risk:'注意：他可能排外、守住老方法；要创新时借外部人或先小范围试点，别硬撞。'},
+ enjoyment:{lev:'怎么激励他',txt:'氛围搞起来，团队活动、轻松的节点安排上；枯燥活儿里掺点趣味。',
+   risk:'注意：硬仗、长期高压期他容易掉链子，关键项目配个能扛压的搭档兜底。'},
+ stability:{lev:'怎么激励他',txt:'岗位和考核尽量可预期，少搞突然的组织调整；要变之前提前同步。',
+   risk:'注意：他不爱挑没把握的大梁，给挑战性任务时要配支持，不然他会缩回去。'},
+ justice:{lev:'怎么激励他',txt:'规则公平、申诉有门；让他参与制定团队规矩，他会很来劲。',
+   risk:'注意：遇到不公他反应会很大，甚至成“刺头”；矛盾别捂，尽快透明处理。'}
+};
+
+/* 价值解读：高分/低分分别意味着什么（帮助自我理解） */
+const VALUE_INTERP={
+ achievement:{hi:'该员工由目标和成果驱动，拿下可见成绩时最有干劲；',lo:'该员工不太被头衔和排名牵着走，更认事情本身的意义；'},
+ conservation:{hi:'该员工信赖成熟流程，讨厌无谓折腾，是团队里的“稳定器”；',lo:'该员工喜欢打破常规、试新路子，老方法容易让其感到无聊；'},
+ caring:{hi:'该员工天然在意人，团队的温度和同事的状态会直接影响其状态；',lo:'该员工更就事论事，不太把私人情绪带进工作；'},
+ freedom:{hi:'该员工需要自己掌控节奏和方式，被 micromanage 会使其憋坏；',lo:'该员工偏好清晰的规则和上级定的框架，按部就班更安心；'},
+ respect:{hi:'该员工要被当回事——专业判断被认真听、被尊重，是其留下的关键；',lo:'该员工不太在意上级怎么看，更认事情本身的对错；'},
+ tradition:{hi:'该员工认同并愿意延续团队的文化与老规矩；',lo:'该员工对“历来如此”没执念，该破就破；'},
+ enjoyment:{hi:'该员工要在工作里有乐趣和轻松感，苦哈哈的环境留不住人；',lo:'为了结果该员工能扛苦扛累，氛围不是第一位的；'},
+ stability:{hi:'该员工要可预期、不突变的环境，变动大时会慌；',lo:'该员工不怕变、甚至渴望新鲜，长期不变会闷；'},
+ justice:{hi:'该员工见不得不公，遇到会想推动修正；',lo:'该员工不太较真公平与否，差不多就行；'}
+};
+
+/* 发展建议：低位价值怎么补（具体、不评判） */
+const VALUE_DEV={
+ achievement:{t:'“成就”偏弱：该员工不太追排名。发展上可刻意攒“可见成果”——把做成的项目写成案例、在复盘会上讲一讲，让努力被看见。'},
+ conservation:{t:'“守成”偏弱：该员工爱破局。可练“先稳后变”——重大改动前先备份旧流程，降低试错成本，别人也更敢让其试。'},
+ caring:{t:'“关怀”偏弱：该员工偏就事论事。带人时不妨多问一句“最近怎么样”，关系资本会反过来帮其把事推顺。'},
+ freedom:{t:'“自由”偏弱：该员工习惯被安排。可在一个小任务上自己定一次节奏，慢慢长出主见。'},
+ respect:{t:'“尊重”偏弱：该员工不太在意评价。可练“向上管理”——主动同步进展，让关键人知道其价值，机会才轮得到。'},
+ tradition:{t:'“传统”偏弱：该员工常破常规。可学“借老规矩的力”，用现有文化降低推行阻力。'},
+ enjoyment:{t:'“享乐”偏弱：该员工能扛苦。但要给其留个“喘气阀”（固定休息、一个爱好），避免长期紧绷耗竭。'},
+ stability:{t:'“稳定”偏弱：该员工不怕变。发展上给其加一层“自有节奏”（周计划、看板），不是坐班式稳定，而是自有节奏不乱。'},
+ justice:{t:'"公正"偏弱：该员工不太较真。涉及原则的事上，练"温和但坚定"地守住底线。'}
+};
+
+/* 高压预警：某项价值过高时的过载风险（按价值区分，不再共用一套话术） */
+const SHADOW_WARN={
+ achievement:'要注意「成就」偏高的员工：他可能把"把事做好"和"证明自己行"混在一起，越努力越怕被否定，长期容易透支、倦怠。带教时帮他把"事情本身的价值"和"用来证明自己的压力"分开看，状态会更健康。',
+ respect:'要注意「尊重」偏高的员工：他可能过度依赖外界认可，一旦没被看见就容易自我怀疑或情绪化。带教时帮他把"自我评价"从"别人怎么看"里独立出来——他的价值不必靠他人背书。',
+ caring:'要注意「关怀」偏高的员工：他容易替团队扛情绪、把别人的事当自己的事，最先耗干的往往是他自己。带教时帮他划清"能帮的"和"该放手的"，硬决策（裁员、差评）安排别人先上或陪他一起。'
+};
+
+/* 岗位原型：imp=重要价值，caution=过高需关注 */
+const ARCH={
+ orgOps:{cn:'组织运营 / HR', desc:'搭流程、带人、做组织机制', imp:['caring','respect','stability','justice'], caution:['freedom']},
+ sales:{cn:'销售 / 业务拓展', desc:'冲业绩、拓客户', imp:['achievement','enjoyment','freedom'], caution:['conservation','tradition']},
+ rnd:{cn:'研发 / 技术', desc:'钻研技术、搞创新', imp:['achievement','freedom'], caution:['tradition','conservation']},
+ leader:{cn:'综合管理 / 管理者', desc:'带团队、扛结果', imp:['achievement','caring','respect','stability'], caution:[]},
+ cs:{cn:'客户成功 / 服务', desc:'服务客户、维护关系', imp:['caring','respect','enjoyment'], caution:[]},
+ grc:{cn:'合规 / 风控', desc:'守规则、控风险', imp:['conservation','tradition','justice','stability'], caution:['freedom']}
+};
+
+/* ============ 状态 ============ */
+let ans=new Array(QUIZ.length).fill(0);
+
+/* ============ 渲染问卷 ============ */
+function renderQuiz(){
+  const box=document.getElementById('questions');
+  let h='';
+  QUIZ.forEach((it,i)=>{
+    h+=`<div class="q"><div class="qt"><span class="idx">Q${i+1}.</span>${it.t}</div><div class="scale">`;
+    ['非常不像我','不太像我','说不清','比较像我','非常像我'].forEach((lab,s)=>{
+      const val=s+1;
+      h+=`<label onclick="pick(${i},${val},this)"><input type="radio" name="q${i}" value="${val}"><span>${val} · ${lab}</span></label>`;
+    });
+    h+=`</div></div>`;
+  });
+  box.innerHTML=h;
+}
+function pick(i,val,el){
+  ans[i]=val;
+  const grp=el.parentElement.querySelectorAll('label');
+  grp.forEach(l=>l.classList.remove('sel'));
+  el.classList.add('sel');
+  const done=ans.filter(x=>x>0).length;
+  document.getElementById('genBtn').disabled = done<QUIZ.length;
+}
+
+/* ============ 计分 ============ */
+function compute(){
+  const raws={};
+  QUIZ.forEach((it,i)=>{
+    if(!raws[it.v]) raws[it.v]=[];
+    raws[it.v].push({f:!it.r, raw:ans[i], adj: it.r?(6-ans[i]):ans[i]});
+  });
+  const norm={};
+  Object.keys(VALUE_META).forEach(v=>{
+    const arr=raws[v];
+    const avg=arr.reduce((s,x)=>s+x.adj,0)/arr.length; // 1-5
+    norm[v]=Math.round(((avg-1)/4)*8+1); // 1-9
+  });
+  return norm;
+}
+
+/* ============ 效度检测 ============ */
+function validity(norm){
+  const answered=ans.filter(x=>x>0);
+  const first=answered[0];
+  const allSame=answered.every(x=>x===first);
+  let incon=0;
+  QUIZ.reduce((m,it)=>{ (m[it.v]=m[it.v]||[]).push(it); return m; },{});
+  const byV={}; QUIZ.forEach((it,i)=>{(byV[it.v]=byV[it.v]||[]).push({f:!it.r,raw:ans[i]});});
+  Object.keys(byV).forEach(v=>{
+    const f=byV[v].filter(x=>x.f), r=byV[v].filter(x=>!x.f);
+    if(f.length&&r.length){
+      const fa=f.reduce((s,x)=>s+x.raw,0)/f.length;
+      const ra=r.reduce((s,x)=>s+x.raw,0)/r.length;
+      if((fa>=4&&ra>=4)||(fa<=2&&ra<=2)) incon++;
+    }
+  });
+  const neutral=ans.filter(x=>x===3).length;
+  const flags=[];
+  if(allSame) flags.push('straight');
+  if(incon>=3) flags.push('incon');
+  if(neutral>=13) flags.push('neutral');
+  return flags;
+}
+
+/* ============ 招聘匹配 ============ */
+function fitOf(key,norm){
+  const a=ARCH[key];
+  const vals=a.imp.map(v=>norm[v]);
+  const avg=vals.reduce((s,x)=>s+x,0)/vals.length;
+  return Math.round((avg-1)/8*100);
+}
+function archReport(norm){
+  const list=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,desc:ARCH[k].desc,fit:fitOf(k,norm)}));
+  list.sort((a,b)=>b.fit-a.fit);
+  let h='<h2>🎯 招聘 / 岗位匹配（动机契合参考）</h2>';
+  h+='<p style="color:var(--sub);font-size:13px">匹配度看的是<b>「价值观动机」</b>和岗位的吻合程度（0–100），不是该员工的兴趣或能力。'
+    +'该员工完全可能某岗动机不算最贴，却因为热爱和研究把它做得很深——这种情况，动机匹配是「加分项」而非「门槛」。所以下面这栏，是用来帮管理者<b>理解该员工</b>，不是给其贴「能不能做」的标签。</p>';
+  list.forEach((it,idx)=>{
+    const caution=ARCH[it.k].caution.filter(v=>norm[v]>=6.5)
+      .map(v=>VALUE_META[v].cn);
+    const tag = it.fit>=70 ? ' <span class="pill core">动机合拍</span>' : (it.fit<40?' <span class="pill weak">需补位</span>':'');
+    const cau = caution.length ? ` <span class="pill shadow">注意 ${caution.join('·')}偏高</span>` : '';
+    const meaning = idx<2 ? `<div style="margin:-4px 0 8px 140px;font-size:12px;color:var(--sub)">这类岗位大致是：${it.desc}。${tag||cau?'':''}</div>` : '';
+    h+=`<div class="fitrow"><div class="name">${it.cn}</div><div class="bar"><i style="width:${it.fit}%"></i></div><div class="pct">${it.fit}%</div></div>`;
+    if(tag||cau) h+=`<div style="margin:-4px 0 8px 140px;font-size:12px">${tag}${cau}</div>`;
+    else if(meaning) h+=meaning;
+  });
+  h+='<p class="footer-note">怎么读：<b>≥70%</b> 动机天然合拍，做起来自带内驱力；<b>40–69%</b> 能做，但需外部结构（流程/搭档）补位；'
+    +'<b>&lt;40%</b> 硬做易耗，除非有强互补搭档。匹配度不替代胜任力与业绩评估，低匹配也未必不能用。</p>';
+  return h;
+}
+
+/* ============ 管理建议 ============ */
+function mgmtReport(top){
+  let h='<h2>🧭 管理建议（按核心驱动）</h2>';
+  top.forEach(v=>{
+    const m=MANAGE[v];
+    h+=`<div class="mgmt"><b>${VALUE_META[v].cn}（核心驱动）</b><br>
+      ${m.lev}：${m.txt}<br>${m.risk}</div>`;
+  });
+  return h;
+}
+
+/* ============ 人才发展 ============ */
+function devReport(top,weak,shadow){
+  let h='<h2>🌱 人才发展路径</h2>';
+  h+='<ul class="tips">';
+  h+=`<li><b>发挥优势：</b>多安排能喂到高位价值（${top.map(v=>VALUE_META[v].cn).join('、')}）的事——该员工做这些事自带内驱力，不需他人推动。</li>`;
+  if(weak.length){
+    h+='<li><b>补足盲区：</b>低位价值不是缺点，只是该员工暂时不那么被它驱动。若岗位需要，可以这样补：<ul style="margin:6px 0 0 18px">';
+    weak.forEach(v=>{ h+=`<li>${VALUE_DEV[v].t}</li>`; });
+    h+='</ul></li>';
+  }else{
+    h+='<li><b>补足盲区：</b>没有明显低位价值，发展重点放在放大优势即可。</li>';
+  }
+  h+=`<li><b>高压预警：</b>${shadow?SHADOW_WARN[shadow]:'当前未见明显的高压预警信号。'}</li>`;
+  h+='<li><b>阶段性复盘：</b>建议 3–6 个月复测一次，看价值权重有没有漂移，再调发展重点。</li>';
+  h+='</ul>';
+  return h;
+}
+
+/* ============ 自我理解（大白话翻译） ============ */
+function interpReport(norm,top,weak,balanced){
+  let h='<h2>🪞 画像解读：该员工是什么样的（供管理者理解）</h2>';
+  h+='<p style="color:var(--sub);font-size:13px">下面把分数高低翻译成大白话，帮管理者读懂该员工在职场里「什么会让他有干劲、什么会让他崩」。</p>';
+  if(balanced) h+='<p style="font-size:13px;color:var(--sub)">该员工九项价值整体较均衡，没有压倒性的单一驱动，下面列出相对略高 / 略低的几项供参考。</p>';
+  if(top.length){
+    h+='<p><b>该员工相对高分的价值（被什么驱动）：</b></p><ul class="tips">';
+    top.forEach(v=>{ h+=`<li><b>${VALUE_META[v].cn}</b> —— ${VALUE_INTERP[v].hi}</li>`; });
+    h+='</ul>';
+  }
+  if(weak.length){
+    h+='<p><b>该员工的低分价值（不太被什么驱动）：</b></p><ul class="tips">';
+    weak.forEach(v=>{ h+=`<li><b>${VALUE_META[v].cn}</b> —— ${VALUE_INTERP[v].lo}</li>`; });
+    h+='</ul>';
+  }
+  if(!top.length && !weak.length){
+    h+='<p>该员工的九项价值分布比较均衡，没有特别突出或特别弱的，属于「全能型动机」。</p>';
+  }
+  return h;
+}
+
+/* ============ 剖面图 ============ */
+function renderGrid(norm){
+  let h='<h2>📊 价值观剖面（1–9）</h2><div class="grid">';
+  const sorted=Object.keys(VALUE_META).sort((a,b)=>{
+    const ra=VALUE_META[a].row*3+VALUE_META[a].col, rb=VALUE_META[b].row*3+VALUE_META[b].col;
+    return ra-rb;
+  });
+  sorted.forEach(v=>{
+    const s=norm[v];
+    // 颜色：低=灰蓝，高=深蓝青
+    const t=(s-1)/8;
+    const r=Math.round(150-t*120), g=Math.round(170-t*120), b=Math.round(210-t*110);
+    const col=`rgb(${r},${g},${b})`;
+    const tag = s>=6.5?'核心':(s<=3?'低位':'');
+    h+=`<div class="cell" style="background:${col}"><div class="cn">${VALUE_META[v].cn}</div>
+      <div class="sc">${s}</div>${tag?`<span class="tag">${tag}</span>`:''}</div>`;
+  });
+  h+='</div>';
+  h+='<div class="axis"><span>← 自我 Self</span><span>他人 Others →</span></div>';
+  h+='<div class="axis" style="justify-content:center;margin-top:2px"><span>上：自主 Agency ｜ 下：融入 Integration</span></div>';
+  return h;
+}
+
+/* ============ 报告组装 ============ */
+function buildReport(norm,flags,prev){
+  const vals=Object.keys(VALUE_META);
+  const ranked=vals.slice().sort((a,b)=>norm[b]-norm[a]);
+  const top=ranked.filter(v=>norm[v]>=6.5).slice(0,3);
+  const coreTop=top.length?top:ranked.slice(0,2);   // 兜底：无≥6.5时取相对最高2项，保证建议始终有内容
+  const weak=ranked.filter(v=>norm[v]<=3);
+  const shadowCands=['achievement','respect','caring'].filter(v=>norm[v]>=6.5).sort((a,b)=>norm[b]-norm[a]);
+  const shadow=shadowCands[0]||null;
+  const topNames=coreTop.map(v=>VALUE_META[v].cn);
+  const spread=norm[ranked[0]]-norm[ranked[ranked.length-1]];
+  const balanced=spread<2.5;
+
+  let h='';
+  // 效度
+  if(flags.length){
+    h+=`<div class="validity v-warn"><b>⚠️ 作答效度提示：</b>`;
+    if(flags.includes('straight')) h+=' 全部题目选项高度一致（疑似随意勾选）；';
+    if(flags.includes('incon')) h+=' 正向题与反向题出现逻辑矛盾（疑似未认真读题）；';
+    if(flags.includes('neutral')) h+=' 中立选项占比过高（投入度偏低）；';
+    h+=' 本报告参考价值有限，建议重新认真作答后再使用。</div>';
+  }else{
+    h+=`<div class="validity v-ok"><b>✅ 作答效度：</b>正向/反向题逻辑一致，无明显随意作答迹象，结果可信度较好。</div>`;
+  }
+
+  h+=renderGrid(norm);
+
+  h+='<div style="margin:14px 0">';
+  h+='<span class="pill core">核心驱动：'+(topNames.join('、')||'—')+'</span>';
+  if(weak.length) h+='<span class="pill weak">低位价值：'+weak.map(v=>VALUE_META[v].cn).join('、')+'</span>';
+  h+='</div>';
+
+  h+=interpReport(norm,coreTop,weak,balanced);
+
+  h+=archReport(norm);
+  h+=mgmtReport(coreTop);
+  h+=devReport(coreTop,weak,shadow);
+
+  // 重测对比
+  if(prev){
+    const diffs=vals.map(v=>Math.abs(norm[v]-(prev.norm[v]||norm[v])));
+    const avgDiff=diffs.reduce((s,x)=>s+x,0)/diffs.length;
+    let stable = avgDiff<=1?'非常稳定':(avgDiff<=2?'大体稳定':'差异偏大');
+    h+=`<h2>🔁 与上次的对比</h2><p>距上次测评，九宫平均漂移 <b>${avgDiff.toFixed(1)}</b> 分（满分 9），整体<b>${stable}</b>。`;
+    if(avgDiff>2){
+      const big=vals.filter(v=>Math.abs(norm[v]-(prev.norm[v]||0))>=3).map(v=>VALUE_META[v].cn);
+      if(big.length) h+=` 波动较大的价值：${big.join('、')}（可能受近期事件或心境影响，建议结合情境解读）。`;
+    }
+    h+='</p>';
+  }
+
+  // 信效度说明
+  h+=`<h2>📏 信度与效度说明</h2>
+    <ul class="tips">
+      <li><b>效度：</b>采用 5 点 Likert 量表 + 每价值双题锚定 + 反向题测谎，较二选一结构显著提升对「中等强度价值」的识别力；但自陈量表仍受社会期望偏差影响，建议结合行为面试交叉验证。</li>
+      <li><b>信度：</b>内置乱选/矛盾检测；支持本地多次复测，用漂移度评估稳定性。间隔 2 周以上的复测一致性更可靠。</li>
+      <li><b>边界：</b>本工具测「价值观动机」，不测能力、不测性格、不测绩效；仅作人才理解与发展参考，不得单凭此做录用/淘汰/晋升决定，须遵守就业合规与反歧视要求。</li>
+    </ul>`;
+
+  h+=`<h2>🔀 和「趣味版」结果对不上？</h2>
+    <p>这是正常的。本企业版问的是<b>职场情境、深思熟虑下的你</b>——5 级量表、逐题打分，测的是"进入工作角色后的我"；而趣味版问的是<b>生活场景、直觉反应下的你</b>——三选一、快判断，测的是"卸下角色、自然状态的我"。两个"我"本就可能不同：工作里你把尊重和公正排在前面，生活里你可能更被成就和自由驱动。<b>差异不是矛盾，而是你不同面向的真实写照</b>。两版合在一起看，才是一个更完整的你。</p>`;
+
+  return h;
+}
+
+/* ============ 生成 ============ */
+function generate(){
+  const norm=compute();
+  const flags=validity(norm);
+  // 为后台汇总计算概要
+  const vals=Object.keys(VALUE_META);
+  const ranked=vals.slice().sort((a,b)=>norm[b]-norm[a]);
+  const top=ranked.filter(v=>norm[v]>=6.5).slice(0,3);
+  const coreTop=top.length?top:ranked.slice(0,2);
+  const weak=ranked.filter(v=>norm[v]<=3);
+  const shadowCands=['achievement','respect','caring'].filter(v=>norm[v]>=6.5).sort((a,b)=>norm[b]-norm[a]);
+  const shadow=shadowCands[0]||null;
+  const archList=Object.keys(ARCH).map(k=>({k,cn:ARCH[k].cn,fit:fitOf(k,norm)})).sort((a,b)=>b.fit-a.fit);
+  submitResult({type:'enterprise', t:Date.now(), norm,
+    top:coreTop, topNames:coreTop.map(v=>VALUE_META[v].cn),
+    weak, weakNames:weak.map(v=>VALUE_META[v].cn), shadow, flags, archTop:archList[0]});
+  let prev=null;
+  try{
+    const hist=JSON.parse(localStorage.getItem('vc_enterprise_hist')||'[]');
+    if(hist.length) prev=hist[hist.length-1];
+  }catch(e){}
+  document.getElementById('report').innerHTML='<div class="rbar"><button class="rbtn" onclick="copyReport()">📋 复制报告</button><button class="rbtn" onclick="downloadReport(\'价值观企业版报告\')">⬇️ 下载报告</button></div>'+buildReport(norm,flags,prev);
+  document.getElementById('report').classList.remove('hidden');
+  document.getElementById('quizCard').classList.add('hidden');
+  document.getElementById('actions').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+  try{
+    const hist=JSON.parse(localStorage.getItem('vc_enterprise_hist')||'[]');
+    hist.push({norm,t:Date.now()});
+    localStorage.setItem('vc_enterprise_hist',JSON.stringify(hist.slice(-6)));
+  }catch(e){}
+}
+
+function copyReport(){
+  const txt=document.getElementById('report').innerText;
+  if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>alert('报告已复制，可粘贴到招聘系统/人才档案。')); }
+  else { alert('当前环境不支持自动复制，请手动选择文本复制。'); }
+}
+function downloadReport(name){ const txt=document.getElementById('report').innerText; const blob=new Blob([txt],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(name||'价值观报告')+'.md'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+
+renderQuiz();
+document.getElementById('genBtn').addEventListener('click',generate);
+
+// 匿名上报到后台（仅汇总统计用；后台不可达时静默失败，不影响本地体验）
+var SUBMIT_URL = ''; // 数据收集端点（待接通后台后填入）
+function submitResult(payload){
+  try{
+    if(SUBMIT_URL){
+      fetch(SUBMIT_URL,{method:'POST',mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify(payload)}).catch(function(){});
+    }else{
+      fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)}).catch(function(){});
+    }
+  }catch(e){}
+}
+</script>
+</body>
+</html>
